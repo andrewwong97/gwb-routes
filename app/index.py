@@ -6,6 +6,10 @@ from fastapi.responses import PlainTextResponse
 app = FastAPI()
 
 @app.get("/")
+def read_root():
+    return {"message": "Hello World from FastAPI on Vercel!"}
+
+@app.get("/times")
 async def main():
     api_key = os.getenv("GOOGLE_MAPS_API_KEY")
     origin = os.getenv("ORIGIN_LATLNG")
@@ -16,10 +20,6 @@ async def main():
     lower_time = get_duration(api_key, origin, lower_waypoint)
 
     return PlainTextResponse(f"From {origin}:\nUpper Level GWB: {upper_time}\nLower Level GWB: {lower_time}")
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
 
 # This is important for Vercel
 if __name__ == "__main__":
