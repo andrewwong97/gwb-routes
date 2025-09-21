@@ -17,7 +17,7 @@ async def read_root():
     upper_time = get_duration(api_key, origin, upper_waypoint)
     lower_time = get_duration(api_key, origin, lower_waypoint)
 
-    return PlainTextResponse(f"From {origin}:\nUpper Level GWB: {upper_time}\nLower Level GWB: {lower_time}")
+    return PlainTextResponse(f"From NJ to NYC:\nUpper Level GWB: {upper_time}\nLower Level GWB: {lower_time}")
 
 @app.get("/healthcheck")
 def healthcheck():
