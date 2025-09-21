@@ -2,6 +2,8 @@ import os
 
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
+from fastapi.responses import FileResponse
+import os
 
 from .gwb_routes import get_duration
 
@@ -22,6 +24,12 @@ async def read_root():
 @app.get("/healthcheck")
 def healthcheck():
     return {"status": "healthy"}
+
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse(os.path.join("static", "favicon.svg"), media_type="image/svg+xml")
 
 # This is important for Vercel
 if __name__ == "__main__":
