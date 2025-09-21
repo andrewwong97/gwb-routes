@@ -30,7 +30,7 @@ def read_root():
     return {"message": "Hello World from FastAPI on Vercel!"}
 
 @app.get("/times")
-async def main():
+def times():
     api_key = os.getenv("GOOGLE_MAPS_API_KEY")
     origin = os.getenv("ORIGIN_LATLNG")
     upper_waypoint = "via:40.854144,-73.965899"
