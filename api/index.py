@@ -16,3 +16,12 @@ async def main():
     lower_time = get_duration(api_key, origin, lower_waypoint)
 
     return PlainTextResponse(f"From {origin}:\nUpper Level GWB: {upper_time}\nLower Level GWB: {lower_time}")
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
+# This is important for Vercel
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
