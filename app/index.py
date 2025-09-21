@@ -1,9 +1,29 @@
-from .gwb_routes import get_duration
+import requests
 
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 
 app = FastAPI()
+
+# Copied from gwb_routes because relative imports broke and I'm lazy
+def get_duration(api_key, origin, waypoint, dest="40.8640,-73.9336"):
+    base_url = "https://maps.googleapis.com/maps/api/directions/json"
+    params = {
+        "origin": origin,
+        "destination": dest,
+        "waypoints": waypoint,
+        "mode": "driving",
+        "units": "imperial",
+        "departure_time": "now",
+        "traffic_model": "best_guess",
+        "key": api_key,
+    }
+    resp = requests.get(base_url, params=params)
+    data = resp.json()
+    try:
+        return data["routes"][0]["legs"][0]["duration_in_traffic"]["text"]
+    except (KeyError, IndexError):
+        return "N/A"
 
 @app.get("/")
 def read_root():
