@@ -37,6 +37,10 @@ def read_root():
 
     return PlainTextResponse(f"From {origin}:\nUpper Level GWB: {upper_time}\nLower Level GWB: {lower_time}")
 
+@app.get("/healthcheck")
+def healthcheck():
+    return {"status": "healthy"}
+
 # This is important for Vercel
 if __name__ == "__main__":
     import uvicorn
