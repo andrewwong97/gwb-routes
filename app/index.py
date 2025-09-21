@@ -29,6 +29,7 @@ def get_duration(api_key, origin, waypoint, dest="40.8640,-73.9336"):
 def read_root():
     api_key = os.getenv("GOOGLE_MAPS_API_KEY")
     origin = os.getenv("ORIGIN_LATLNG")
+    print(api_key, origin)
     upper_waypoint = "via:40.854144,-73.965899"
     lower_waypoint = "via:40.854603,-73.969891"
 
