@@ -27,10 +27,6 @@ def get_duration(api_key, origin, waypoint, dest="40.8640,-73.9336"):
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello World from FastAPI on Vercel!"}
-
-@app.get("/times")
-def times():
     api_key = os.getenv("GOOGLE_MAPS_API_KEY")
     origin = os.getenv("ORIGIN_LATLNG")
     upper_waypoint = "via:40.854144,-73.965899"
