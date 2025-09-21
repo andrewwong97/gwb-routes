@@ -10,7 +10,12 @@ Save the API key somewhere secure, you'll use it later.
 
 ## Usage
 
-First make sure to `chmod +x gwb_routes.sh` to make it executable.
+Set up a python virtualenv and activate it:
+1. `python -m venv venv`
+2. `source venv/bin/activate`
+3. `pip install -r requirements.txt`
+
+Make sure to `chmod +x gwb_routes.sh` to make it executable.
 ```bash
 ./gwb_routes.sh <Google Maps Directions API Key> "<LAT>, <LNG>"
 ```
