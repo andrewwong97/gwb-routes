@@ -1,19 +1,28 @@
 import os
+import logging
 
 from fastapi import FastAPI, Response
 from fastapi.responses import PlainTextResponse, FileResponse, HTMLResponse
 
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 try:
     # Try relative imports first (works in production/package context)
     from .api_client import ApiClient
     from .models import GWBRoutes
+    log.info("Using relative imports")
 except ImportError:
     # Fall back to absolute imports (works in local development)
+    log.warning("Using absolute imports")
     from api_client import ApiClient
     from models import GWBRoutes
 
 app = FastAPI()
 api_client = ApiClient(os.getenv("GOOGLE_MAPS_API_KEY"))
+if not api_client.api_key:
+    log.error("GOOGLE_MAPS_API_KEY is not set")
+    raise ValueError("GOOGLE_MAPS_API_KEY is not set")
+log.info("Starting server...")
 
 @app.get("/")
 async def read_root():
