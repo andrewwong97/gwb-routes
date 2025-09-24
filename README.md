@@ -25,7 +25,6 @@ Make sure to `chmod +x gwb_routes.sh` to make it executable.
 Included in the root level directory is a Starlark .star file that can be compiled and rendered to a .webp executable for TidByt devices.
 It's not complete, but it is a start. For more docs, check out: https://tidbyt.dev/docs/build/build-for-tidbyt
 
-## Plans
-For this script to be usable, one action would be to port the bash script into any lambda function and run it from vercel or aws lambda. This would allow iPhone shortcuts to be able to invoke the API.
+## How to use right now
+Invoke `https://gwb-routes.vercel.app/` via Siri shortcuts or as a browser favorite.
 
-However, there is certainly security concerns if there is an API key. A possibility would be to self-host a website and cache the response instead of fetching it every time.
