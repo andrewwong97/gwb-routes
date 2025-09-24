@@ -1,6 +1,6 @@
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.responses import PlainTextResponse
 from fastapi.responses import FileResponse
 import os
@@ -15,7 +15,10 @@ async def read_root():
     
     response_text = get_final_text(api_key)
 
-    return PlainTextResponse(response_text)
+    return PlainTextResponse(
+        response_text,
+        headers={"Cache-Control": "public, max-age=180, s-maxage=180"}
+    )
 
 @app.get("/healthcheck")
 def healthcheck():
