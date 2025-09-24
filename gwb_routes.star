@@ -2,50 +2,12 @@ load("render.star", "render")
 load("time.star", "time")
 load("http.star", "http")
 
-API_URL = "https://maps.googleapis.com/maps/api/directions/json"
-
-# Fetch ETA in minutes
-def fetch_minutes(api_key, orig, dest):
-    if not api_key or not orig or not dest:
-        return None
-
-    q = {
-        "origin": orig,
-        "destination": dest,
-        "mode": "driving",
-        "units": "imperial",
-        "key": api_key,
-        "departure_time": "now",
-        "traffic_model": "best_guess",
-        "alternatives": "false",
-    }
-
-    r = http.get(API_URL, params=q)
+# Fetch route data from deployed web service
+def fetch_route_data():
+    r = http.get("https://gwb-routes.vercel.app/")
     if r.status_code != 200:
         return None
-
-    d = r.json()
-    if d.get("status") != "OK":
-        return None
-
-    routes = d.get("routes", [])
-    if not routes:
-        return None
-
-    legs = routes[0].get("legs", [])
-    if not legs:
-        return None
-
-    leg = legs[0]
-    duration_info = leg.get("duration_in_traffic") or leg.get("duration")
-    if not duration_info:
-        return None
-
-    s = duration_info.get("value")
-    if s == None:
-        return None
-
-    return (s + 30) // 60
+    return r.body()
 
 # UI helpers
 def pill(label, value):
@@ -62,21 +24,58 @@ def pill(label, value):
     )
 
 def main(config):
-    api_key = config.get("api_key")
-    upper_origin = config.get("upper_origin") or "40.854144,-73.965899"
-    lower_origin = config.get("lower_origin") or "40.854603,-73.969891"
-    destination = config.get("destination") or "40.8640,-73.9336"
+    # Fetch data from web service
+    route_data = fetch_route_data()
+    
+    if not route_data:
+        return render.Root(child=render.Text(content="Service unavailable", font="6x10"))
 
-    if not api_key:
-        return render.Root(child=render.Text(content="Missing API key", font="6x10"))
-
-    up = fetch_minutes(api_key, upper_origin, destination)
-    lo = fetch_minutes(api_key, lower_origin, destination)
+    # Parse the text response
+    # Expected format:
+    # NJ to NYC:
+    # Upper Level GWB: 25 mins
+    # Lower Level GWB: 30 mins
+    # 
+    # NYC to NJ:
+    # Upper Level GWB: 22 mins
+    # Lower Level GWB: 28 mins
+    
+    lines = route_data.split("\n")
+    
+    # Default values
+    up_to_nyc = "—"
+    lo_to_nyc = "—"
+    up_to_nj = "—"
+    lo_to_nj = "—"
+    
+    # Parse the response
+    current_section = ""
+    for line in lines:
+        line = line.strip()
+        if line == "NJ to NYC:":
+            current_section = "to_nyc"
+        elif line == "NYC to NJ:":
+            current_section = "to_nj"
+        elif line.startswith("Upper Level GWB:"):
+            time_str = line.replace("Upper Level GWB:", "").strip()
+            if current_section == "to_nyc":
+                up_to_nyc = time_str
+            elif current_section == "to_nj":
+                up_to_nj = time_str
+        elif line.startswith("Lower Level GWB:"):
+            time_str = line.replace("Lower Level GWB:", "").strip()
+            if current_section == "to_nyc":
+                lo_to_nyc = time_str
+            elif current_section == "to_nj":
+                lo_to_nj = time_str
 
     rows = []
-    rows.append(render.Text(content="GWB → Bus Terminal", font="6x10"))
-    rows.append(pill("Upper", "%dm" % up if up != None else "—"))
-    rows.append(pill("Lower", "%dm" % lo if lo != None else "—"))
+    rows.append(render.Text(content="GWB → NYC", font="6x10"))
+    rows.append(pill("Upper", up_to_nyc))
+    rows.append(pill("Lower", lo_to_nyc))
+    rows.append(render.Text(content="NYC → GWB", font="6x10"))
+    rows.append(pill("Upper", up_to_nj))
+    rows.append(pill("Lower", lo_to_nj))
     rows.append(render.Text(content=time.now().format("3:04 PM"), font="6x10"))
 
     return render.Root(child=render.Column(children=rows))
