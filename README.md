@@ -26,5 +26,5 @@ Included in the root level directory is a Starlark .star file that can be compil
 It's not complete, but it is a start. For more docs, check out: https://tidbyt.dev/docs/build/build-for-tidbyt
 
 ## How to use right now
-Invoke `https://gwb-routes.vercel.app/` via Siri shortcuts or as a browser favorite.
+Invoke https://gwb-routes.vercel.app via Siri shortcuts or as a browser favorite.
 
