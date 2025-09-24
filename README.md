@@ -1,6 +1,8 @@
-# GWB Commute Time Script
+# GWB Commute Operational Dashboard
 
 This script fetches current driving times (with traffic) from your origin to the George Washington Bridge, comparing **Upper Level** and **Lower Level** routes.
+
+<img width="865" height="760" alt="image" src="https://github.com/user-attachments/assets/daf4c757-cb6a-4e89-bb90-3ed577b1e553" />
 
 ## Getting an API key
 
@@ -30,3 +32,5 @@ It's not complete, but it is a start. For more docs, check out: https://tidbyt.d
 ## How to use right now
 
 Invoke https://gwb-routes.vercel.app via Siri shortcuts or as a browser favorite.
+
+Or visit https://gwb-routes.vercel.app/dashboard.
