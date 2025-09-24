@@ -64,7 +64,7 @@ def main():
     
     response_text = get_final_text(api_key)
 
-    return response_text
+    print(response_text)
 
 
 if __name__ == "__main__":
