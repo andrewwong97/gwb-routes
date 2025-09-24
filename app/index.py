@@ -48,7 +48,7 @@ def healthcheck():
 async def dashboard(response: Response):
     """Serve the dashboard HTML page"""
     try:
-        with open("index.html", "r", encoding="utf-8") as f:
+        with open("static/index.html", "r", encoding="utf-8") as f:
             html_content = f.read()
         # Replace localhost:8000 with relative URLs for production
         html_content = html_content.replace('"http://localhost:8000"', '""')

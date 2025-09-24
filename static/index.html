@@ -75,37 +75,41 @@
       }
 
       .dashboard-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 30px;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin: 0 auto 32px auto;
+        max-width: 640px;
+      }
+
+      .dashboard-row {
+        display: flex;
+        gap: 24px;
+        width: 100%;
       }
 
       .dashboard-card {
         background: white;
-        border-radius: 20px;
-        padding: 30px;
+        border-radius: 16px;
+        padding: 24px;
         text-align: center;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border: 3px solid transparent;
+        border: 2px solid transparent;
+        flex: 1;
       }
 
       .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
       }
 
       .card-header {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: 8px;
+        margin-bottom: 16px;
       }
 
       .card-direction {
@@ -124,7 +128,7 @@
       .card-time {
         font-size: 3rem;
         font-weight: 700;
-        margin: 10px 0;
+        margin: 12px 0;
         transition: all 0.3s ease;
       }
 
@@ -205,9 +209,12 @@
 
       @media (max-width: 768px) {
         .dashboard-container {
-          grid-template-columns: 1fr;
-          grid-template-rows: repeat(4, 1fr);
-          gap: 15px;
+          gap: 20px;
+          margin-bottom: 24px;
+        }
+
+        .dashboard-row {
+          gap: 16px;
         }
 
         .dashboard-card {
@@ -229,15 +236,26 @@
 
       @media (max-width: 480px) {
         .dashboard-container {
-          gap: 10px;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        .dashboard-row {
+          gap: 12px;
         }
 
         .dashboard-card {
-          padding: 15px;
+          padding: 16px;
+          border-radius: 12px;
         }
 
         .card-time {
           font-size: 2rem;
+          margin: 8px 0;
+        }
+
+        .card-header {
+          margin-bottom: 12px;
         }
       }
     </style>
@@ -263,44 +281,50 @@
 
       <div id="content" style="display: none">
         <div class="dashboard-container">
+          <!-- Row 1: NJ to NYC -->
           <!-- NJ to NYC - Upper Level -->
-          <div class="dashboard-card" id="card-upper-nyc">
-            <div class="card-header">
-              <span class="card-direction">🏙️ NJ → NYC</span>
+          <div class="dashboard-row">
+            <div class="dashboard-card" id="card-upper-nyc">
+              <div class="card-header">
+                <span class="card-direction">🏙️ NJ → NYC</span>
+              </div>
+              <div class="card-level">Upper Level</div>
+              <div class="card-time" id="upper-level-nyc">--</div>
+              <div class="card-label">Travel Time</div>
             </div>
-            <div class="card-level">Upper Level</div>
-            <div class="card-time" id="upper-level-nyc">--</div>
-            <div class="card-label">Travel Time</div>
+
+            <!-- NJ to NYC - Lower Level -->
+            <div class="dashboard-card" id="card-lower-nyc">
+              <div class="card-header">
+                <span class="card-direction">🏙️ NJ → NYC</span>
+              </div>
+              <div class="card-level">Lower Level</div>
+              <div class="card-time" id="lower-level-nyc">--</div>
+              <div class="card-label">Travel Time</div>
+            </div>
           </div>
 
+          <!-- Row 2: NYC to NJ -->
           <!-- NYC to NJ - Upper Level -->
-          <div class="dashboard-card" id="card-upper-nj">
-            <div class="card-header">
-              <span class="card-direction">🐱 NYC → NJ</span>
+          <div class="dashboard-row">
+            <div class="dashboard-card" id="card-upper-nj">
+              <div class="card-header">
+                <span class="card-direction">🐱 NYC → NJ</span>
+              </div>
+              <div class="card-level">Upper Level</div>
+              <div class="card-time" id="upper-level-nj">--</div>
+              <div class="card-label">Travel Time</div>
             </div>
-            <div class="card-level">Upper Level</div>
-            <div class="card-time" id="upper-level-nj">--</div>
-            <div class="card-label">Travel Time</div>
-          </div>
 
-          <!-- NJ to NYC - Lower Level -->
-          <div class="dashboard-card" id="card-lower-nyc">
-            <div class="card-header">
-              <span class="card-direction">🏙️ NJ → NYC</span>
+            <!-- NYC to NJ - Lower Level -->
+            <div class="dashboard-card" id="card-lower-nj">
+              <div class="card-header">
+                <span class="card-direction">🐱 NYC → NJ</span>
+              </div>
+              <div class="card-level">Lower Level</div>
+              <div class="card-time" id="lower-level-nj">--</div>
+              <div class="card-label">Travel Time</div>
             </div>
-            <div class="card-level">Lower Level</div>
-            <div class="card-time" id="lower-level-nyc">--</div>
-            <div class="card-label">Travel Time</div>
-          </div>
-
-          <!-- NYC to NJ - Lower Level -->
-          <div class="dashboard-card" id="card-lower-nj">
-            <div class="card-header">
-              <span class="card-direction">🐱 NYC → NJ</span>
-            </div>
-            <div class="card-level">Lower Level</div>
-            <div class="card-time" id="lower-level-nj">--</div>
-            <div class="card-label">Travel Time</div>
           </div>
         </div>
 
