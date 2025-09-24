@@ -1,5 +1,8 @@
 import requests
-from models import GWBRoutes
+try:
+    from .models import GWBRoutes
+except ImportError:
+    from models import GWBRoutes
 
 # Hardcoded destinations
 fletcher_ave = "40.85923408136495, -73.97199910595126"    # Fletcher Ave

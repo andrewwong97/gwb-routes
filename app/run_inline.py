@@ -2,7 +2,10 @@
 
 import sys
 
-from api_client import ApiClient
+try:
+    from .api_client import ApiClient
+except ImportError:
+    from api_client import ApiClient
 
 def main():
     if len(sys.argv) < 2:

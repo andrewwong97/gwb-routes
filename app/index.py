@@ -3,8 +3,14 @@ import os
 from fastapi import FastAPI, Response
 from fastapi.responses import PlainTextResponse, FileResponse, HTMLResponse
 
-from api_client import ApiClient
-from models import GWBRoutes
+try:
+    # Try relative imports first (works in production/package context)
+    from .api_client import ApiClient
+    from .models import GWBRoutes
+except ImportError:
+    # Fall back to absolute imports (works in local development)
+    from api_client import ApiClient
+    from models import GWBRoutes
 
 app = FastAPI()
 api_client = ApiClient(os.getenv("GOOGLE_MAPS_API_KEY"))
