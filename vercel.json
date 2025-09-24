@@ -5,5 +5,17 @@
       "src": "/(.*)",
       "dest": "app/index.py"
     }
+  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=180, s-maxage=180"
+        }
+      ]
+    }
   ]
 }
