@@ -32,7 +32,7 @@
 
       .header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 32px;
       }
 
       .header h1 {
@@ -78,7 +78,8 @@
         display: flex;
         flex-direction: column;
         gap: 24px;
-        margin: 0 auto 32px auto;
+        margin: 0 auto;
+        margin-bottom: 32px;
         max-width: 640px;
       }
 
@@ -86,17 +87,19 @@
         display: flex;
         gap: 24px;
         width: 100%;
+        align-items: stretch;
       }
 
       .dashboard-card {
         background: white;
         border-radius: 16px;
-        padding: 24px;
+        padding: 28px;
         text-align: center;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: 2px solid transparent;
         flex: 1;
+        min-height: 180px;
       }
 
       .dashboard-card:hover {
@@ -109,34 +112,43 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
       }
 
       .card-direction {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
         color: #2c3e50;
       }
 
       .card-level {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         color: #7f8c8d;
         text-transform: uppercase;
         letter-spacing: 1px;
+        margin-bottom: 8px;
       }
 
       .card-time {
-        font-size: 3rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        margin: 12px 0;
+        margin: 16px 0;
         transition: all 0.3s ease;
+        line-height: 1.1;
+        height: 2.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        overflow: hidden;
       }
 
       .card-label {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #95a5a6;
         text-transform: uppercase;
         letter-spacing: 1px;
+        margin-top: 8px;
       }
 
       /* Color coding based on time ranges */
@@ -170,6 +182,7 @@
       .refresh-btn {
         display: block;
         margin: 0 auto;
+        margin-bottom: 20px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
@@ -178,12 +191,13 @@
         font-size: 1.1rem;
         font-weight: 600;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
       }
 
       .refresh-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
       }
 
       .refresh-btn:active {
@@ -197,14 +211,14 @@
         padding: 20px;
         border-radius: 10px;
         text-align: center;
-        margin: 20px 0;
+        margin-bottom: 32px;
       }
 
       .last-updated {
         text-align: center;
         color: #7f8c8d;
         font-size: 0.9rem;
-        margin-top: 20px;
+        margin: 0;
       }
 
       @media (max-width: 768px) {
@@ -219,10 +233,13 @@
 
         .dashboard-card {
           padding: 20px;
+          min-height: 150px;
         }
 
         .card-time {
-          font-size: 2.5rem;
+          font-size: 2.2rem;
+          height: 2.4rem;
+          margin: 12px 0;
         }
 
         .header h1 {
@@ -247,15 +264,29 @@
         .dashboard-card {
           padding: 16px;
           border-radius: 12px;
+          min-height: 130px;
         }
 
         .card-time {
-          font-size: 2rem;
-          margin: 8px 0;
+          font-size: 1.8rem;
+          margin: 10px 0;
+          height: 2rem;
         }
 
         .card-header {
-          margin-bottom: 12px;
+          margin-bottom: 8px;
+        }
+
+        .card-direction {
+          font-size: 0.9rem;
+        }
+
+        .card-level {
+          font-size: 0.75rem;
+        }
+
+        .card-label {
+          font-size: 0.7rem;
         }
       }
     </style>
