@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GWB Routes - Real-time Traffic</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #7f8c8d;
+        font-size: 1.2rem;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .dashboard-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 3px solid transparent;
+      }
+
+      .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .card-direction {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .card-level {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .card-time {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 10px 0;
+        transition: all 0.3s ease;
+      }
+
+      .card-label {
+        font-size: 0.8rem;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Color coding based on time ranges */
+      .time-good {
+        color: #27ae60;
+        border-color: #27ae60;
+      }
+
+      .time-medium {
+        color: #f39c12;
+        border-color: #f39c12;
+      }
+
+      .time-bad {
+        color: #e74c3c;
+        border-color: #e74c3c;
+      }
+
+      .time-good .card-time {
+        color: #27ae60;
+      }
+
+      .time-medium .card-time {
+        color: #f39c12;
+      }
+
+      .time-bad .card-time {
+        color: #e74c3c;
+      }
+
+      .refresh-btn {
+        display: block;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .refresh-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .refresh-btn:active {
+        transform: translateY(0);
+      }
+
+      .error {
+        background: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .last-updated {
+        text-align: center;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-top: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-container {
+          grid-template-columns: 1fr;
+          grid-template-rows: repeat(4, 1fr);
+          gap: 15px;
+        }
+
+        .dashboard-card {
+          padding: 20px;
+        }
+
+        .card-time {
+          font-size: 2.5rem;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .container {
+          padding: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dashboard-container {
+          gap: 10px;
+        }
+
+        .dashboard-card {
+          padding: 15px;
+        }
+
+        .card-time {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🌉 GWB Routes</h1>
+        <p>Real-time traffic information for George Washington Bridge</p>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading traffic information...</p>
+      </div>
+
+      <div id="error" class="error" style="display: none">
+        <p>
+          Unable to load traffic data. Please make sure the server is running on
+          localhost:8000
+        </p>
+      </div>
+
+      <div id="content" style="display: none">
+        <div class="dashboard-container">
+          <!-- NJ to NYC - Upper Level -->
+          <div class="dashboard-card" id="card-upper-nyc">
+            <div class="card-header">
+              <span class="card-direction">🏙️ NJ → NYC</span>
+            </div>
+            <div class="card-level">Upper Level</div>
+            <div class="card-time" id="upper-level-nyc">--</div>
+            <div class="card-label">Travel Time</div>
+          </div>
+
+          <!-- NYC to NJ - Upper Level -->
+          <div class="dashboard-card" id="card-upper-nj">
+            <div class="card-header">
+              <span class="card-direction">🐱 NYC → NJ</span>
+            </div>
+            <div class="card-level">Upper Level</div>
+            <div class="card-time" id="upper-level-nj">--</div>
+            <div class="card-label">Travel Time</div>
+          </div>
+
+          <!-- NJ to NYC - Lower Level -->
+          <div class="dashboard-card" id="card-lower-nyc">
+            <div class="card-header">
+              <span class="card-direction">🏙️ NJ → NYC</span>
+            </div>
+            <div class="card-level">Lower Level</div>
+            <div class="card-time" id="lower-level-nyc">--</div>
+            <div class="card-label">Travel Time</div>
+          </div>
+
+          <!-- NYC to NJ - Lower Level -->
+          <div class="dashboard-card" id="card-lower-nj">
+            <div class="card-header">
+              <span class="card-direction">🐱 NYC → NJ</span>
+            </div>
+            <div class="card-level">Lower Level</div>
+            <div class="card-time" id="lower-level-nj">--</div>
+            <div class="card-label">Travel Time</div>
+          </div>
+        </div>
+
+        <button class="refresh-btn" onclick="loadTrafficData()">
+          🔄 Refresh Data
+        </button>
+
+        <div class="last-updated" id="last-updated"></div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8000";
+
+      function getTimeColor(timeString) {
+        if (!timeString || timeString === "N/A") return "time-medium";
+
+        // Extract number from time string (e.g., "3 mins" -> 3)
+        const match = timeString.match(/(\d+)/);
+        if (!match) return "time-medium";
+
+        const minutes = parseInt(match[1]);
+
+        if (minutes <= 5) return "time-good";
+        if (minutes <= 9) return "time-medium";
+        return "time-bad";
+      }
+
+      function updateCard(cardId, timeId, timeValue) {
+        const card = document.getElementById(cardId);
+        const timeElement = document.getElementById(timeId);
+
+        // Update the time text
+        timeElement.textContent = timeValue || "N/A";
+
+        // Remove existing color classes
+        card.classList.remove("time-good", "time-medium", "time-bad");
+
+        // Add appropriate color class
+        const colorClass = getTimeColor(timeValue);
+        card.classList.add(colorClass);
+      }
+
+      async function loadTrafficData() {
+        const loading = document.getElementById("loading");
+        const error = document.getElementById("error");
+        const content = document.getElementById("content");
+
+        // Show loading state
+        loading.style.display = "block";
+        error.style.display = "none";
+        content.style.display = "none";
+
+        try {
+          const response = await fetch(`${API_BASE}/times`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Update each card with data and color coding
+          updateCard("card-upper-nyc", "upper-level-nyc", data.upper_level_nyc);
+          updateCard("card-lower-nyc", "lower-level-nyc", data.lower_level_nyc);
+          updateCard("card-upper-nj", "upper-level-nj", data.upper_level_nj);
+          updateCard("card-lower-nj", "lower-level-nj", data.lower_level_nj);
+
+          // Update last updated time
+          const now = new Date();
+          document.getElementById(
+            "last-updated"
+          ).textContent = `Last updated: ${now.toLocaleTimeString()}`;
+
+          // Show content
+          loading.style.display = "none";
+          content.style.display = "block";
+        } catch (err) {
+          console.error("Error loading traffic data:", err);
+          loading.style.display = "none";
+          error.style.display = "block";
+        }
+      }
+
+      // Load data when page loads
+      document.addEventListener("DOMContentLoaded", loadTrafficData);
+
+      // Auto-refresh every 3 minutes
+      setInterval(loadTrafficData, 3 * 60 * 1000);
+    </script>
+  </body>
+</html>
