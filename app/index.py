@@ -51,7 +51,7 @@ async def dashboard(response: Response):
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    return FileResponse(os.path.join("static", "favicon.svg"), media_type="image/svg+xml")
+    return FileResponse(os.path.join("static", "favicon.png"), media_type="image/png")
 
 # This is important for Vercel
 if __name__ == "__main__":
