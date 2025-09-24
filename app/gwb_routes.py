@@ -41,17 +41,17 @@ def get_final_text(api_key):
     lower_time_to_nj = get_duration(api_key, gwb_lower_nyc_side, fletcher_ave)
 
     response_text = f"""
-    ----------------------------------------
-    NJ to NYC:
-    ----------------------------------------
-        Upper Level GWB: {upper_time_to_nyc}
-        Lower Level GWB: {lower_time_to_nyc}
+----------------------------------------
+NJ to NYC:
+----------------------------------------
+Upper Level GWB: {upper_time_to_nyc}
+Lower Level GWB: {lower_time_to_nyc}
 
-    ----------------------------------------
-    NYC to NJ:
-    ----------------------------------------
-        Upper Level GWB: {upper_time_to_nj}
-        Lower Level GWB: {lower_time_to_nj}
+----------------------------------------
+NYC to NJ:
+----------------------------------------
+Upper Level GWB: {upper_time_to_nj}
+Lower Level GWB: {lower_time_to_nj}
     """
     return response_text
 
