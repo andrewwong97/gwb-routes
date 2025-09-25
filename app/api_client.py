@@ -1,18 +1,10 @@
 import requests
 try:
     from .models import GWBRoutes
+    from .constants import *
 except ImportError:
     from models import GWBRoutes
-
-# Hardcoded destinations
-fletcher_ave = "40.85923408136495, -73.97199910595126"    # Fletcher Ave
-gwb_bus_terminal = "40.84915583675182, -73.93987065819441"   # GWB Bus Terminal
-
-# GWB ramp coordinates as direct origins/destinations
-gwb_upper_nj_side = "40.853575616805294, -73.96277775559088"      # Upper level NJ side
-gwb_lower_nj_side = "40.853386143945826, -73.96296693613093"      # Lower level NJ side
-gwb_upper_nyc_side = "40.8470196232696, -73.94314593858371"       # Upper level NYC side
-gwb_lower_nyc_side = "40.847470731893516, -73.94267562542835"     # Lower level NYC side
+    from constants import *
 
 
 class ApiClient:
@@ -40,20 +32,23 @@ class ApiClient:
 
     def get_times_as_model(self) -> GWBRoutes:
         return GWBRoutes(
-            upper_level_nyc = self.get_duration(gwb_upper_nj_side, gwb_bus_terminal),
-            lower_level_nyc = self.get_duration(gwb_lower_nj_side, gwb_bus_terminal),
-            upper_level_nj = self.get_duration(gwb_upper_nyc_side, fletcher_ave),
-            lower_level_nj = self.get_duration(gwb_lower_nyc_side, fletcher_ave)
+            # NJ to NYC
+            upper_level_nyc = self.get_duration(gwb_upper_nj_side, gwb_off_ramp_upper_nyc_side),
+            lower_level_nyc = self.get_duration(gwb_lower_nj_side, gwb_off_ramp_lower_nyc_side),
+
+            # NYC to NJ
+            upper_level_nj = self.get_duration(gwb_upper_nyc_side, gwb_off_ramp_upper_nj_side),
+            lower_level_nj = self.get_duration(gwb_lower_nyc_side, gwb_off_ramp_lower_nj_side)
         )
         
     def get_times_as_text(self):
         # NJ to NYC direction (GWB NJ-side ramps → NYC location)
-        upper_time_to_nyc = self.get_duration(gwb_upper_nj_side, gwb_bus_terminal)
-        lower_time_to_nyc = self.get_duration(gwb_lower_nj_side, gwb_bus_terminal)
+        upper_time_to_nyc = self.get_duration(gwb_upper_nj_side, gwb_off_ramp_upper_nyc_side)
+        lower_time_to_nyc = self.get_duration(gwb_lower_nj_side, gwb_off_ramp_lower_nyc_side)
         
         # NYC to NJ direction (GWB NYC-side ramps → NJ location)
-        upper_time_to_nj = self.get_duration(gwb_upper_nyc_side, fletcher_ave)
-        lower_time_to_nj = self.get_duration(gwb_lower_nyc_side, fletcher_ave)
+        upper_time_to_nj = self.get_duration(gwb_upper_nyc_side, gwb_off_ramp_upper_nj_side)
+        lower_time_to_nj = self.get_duration(gwb_lower_nyc_side, gwb_off_ramp_lower_nj_side)
 
         response_text = f"""
 ------------------------------------
