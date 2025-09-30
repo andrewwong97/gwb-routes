@@ -38,6 +38,7 @@ class ApiClient:
             "key": self.api_key,
         }
         resp = requests.get(base_url, params=params)
+        log.info("Made API call to Google Maps API")
         data = resp.json()
         try:
             route_duration = data["routes"][0]["legs"][0]["duration_in_traffic"]["text"]
