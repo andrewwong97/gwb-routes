@@ -40,7 +40,7 @@ async def plaintext():
 @app.get("/times", response_model=GWBRoutes)
 async def read_times(response: Response):
     data = api_client.get_times_as_model()
-    # response.headers["Cache-Control"] = "public, max-age=180, s-maxage=180"
+    response.headers["Cache-Control"] = "public, max-age=180, s-maxage=180"
     return data
 
 @app.get("/healthcheck")
