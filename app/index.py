@@ -49,6 +49,7 @@ def healthcheck():
 
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(response: Response):
     """Serve the dashboard HTML page"""
     try:
