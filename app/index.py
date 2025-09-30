@@ -13,13 +13,13 @@ log = logging.getLogger(__name__)
 try:
     # Try relative imports first (works in production/package context)
     from .api_client import ApiClient
-    from .models import GWBRoutes
+    from .response_models import GWBRoutes
     log.info("Using relative imports")
 except ImportError:
     # Fall back to absolute imports (works in local development)
     log.warning("Using absolute imports")
     from api_client import ApiClient
-    from models import GWBRoutes
+    from response_models import GWBRoutes
 
 app = FastAPI()
 api_client = ApiClient(os.getenv("GOOGLE_MAPS_API_KEY"))

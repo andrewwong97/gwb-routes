@@ -3,8 +3,10 @@ import pytest
 from unittest.mock import Mock, patch
 try:
     from .routes_cache import RoutesCache
+    from .datamodels.location import Location
 except ImportError:
     from routes_cache import RoutesCache
+    from datamodels.location import Location
 
 
 class MockRedis:
@@ -67,20 +69,20 @@ class TestRoutesCacheIntegration:
         assert cache.is_available() is True
         
         # Test cache miss
-        result = cache.get("origin1", "dest1")
+        result = cache.get(Location("origin1", "dest1"), Location("origin1", "dest1"))
         assert result is None
         
         # Test cache set
-        success = cache.set("origin1", "dest1", "15 mins")
+        success = cache.set(Location("origin1", "dest1"), Location("origin1", "dest1"), "15 mins")
         assert success is True
         
         # Test cache hit
-        result = cache.get("origin1", "dest1")
+        result = cache.get(Location("origin1", "dest1"), Location("origin1", "dest1"))
         assert result == "15 mins"
         
         # Test multiple cache entries
-        cache.set("origin2", "dest2", "20 mins")
-        cache.set("origin3", "dest3", "25 mins")
+        cache.set(Location("origin2", "dest2"), Location("origin2", "dest2"), "20 mins")
+        cache.set(Location("origin3", "dest3"), Location("origin3", "dest3"), "25 mins")
         assert len(mock_redis.data) == 3
         
         # Test cache info
@@ -101,7 +103,7 @@ class TestRoutesCacheIntegration:
         assert len(mock_redis.data) == 0
         
         # Test cache miss after clear
-        result = cache.get("origin1", "dest1")
+        result = cache.get(Location("origin1", "dest1"), Location("origin1", "dest1"))
         assert result is None
 
     @patch.dict(os.environ, {}, clear=True)
@@ -115,8 +117,8 @@ class TestRoutesCacheIntegration:
         assert cache.is_available() is False
         
         # Test operations without Redis
-        assert cache.get("origin", "dest") is None
-        assert cache.set("origin", "dest", "value") is False
+        assert cache.get(Location("origin", "dest"), Location("origin", "dest")) is None
+        assert cache.set(Location("origin", "dest"), Location("origin", "dest"), "value") is False
         assert cache.clear_cache() == 0
         
         # Test info and health without Redis
@@ -145,8 +147,8 @@ class TestRoutesCacheIntegration:
         cache = RoutesCache()
         
         # All operations should handle errors gracefully
-        assert cache.get("origin", "dest") is None
-        assert cache.set("origin", "dest", "value") is False
+        assert cache.get(Location("origin", "dest"), Location("origin", "dest")) is None
+        assert cache.set(Location("origin", "dest"), Location("origin", "dest"), "value") is False
         assert cache.clear_cache() == 0
         
         health = cache.health_check()

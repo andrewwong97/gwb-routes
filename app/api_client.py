@@ -1,13 +1,15 @@
 import requests
 import logging
 try:
-    from .models import GWBRoutes
+    from .response_models import GWBRoutes
     from .constants import *
     from .routes_cache import RoutesCache
+    from .datamodels.location import Location
 except ImportError:
-    from models import GWBRoutes
+    from response_models import GWBRoutes
     from constants import *
     from routes_cache import RoutesCache
+    from datamodels.location import Location
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -17,7 +19,7 @@ class ApiClient:
         self.api_key = api_key
         self.cache = RoutesCache()
 
-    def get_duration(self, origin, dest):
+    def get_duration(self, origin: Location, dest: Location):
         """ Returns the duration of the route in traffic in human-readable format """
         
         # Check cache first and return early if found
@@ -27,8 +29,8 @@ class ApiClient:
 
         base_url = "https://maps.googleapis.com/maps/api/directions/json"
         params = {
-            "origin": origin,
-            "destination": dest,
+            "origin": origin.to_key(),
+            "destination": dest.to_key(),
             "mode": "driving",
             "units": "imperial",
             "departure_time": "now",

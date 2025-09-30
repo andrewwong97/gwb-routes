@@ -3,6 +3,11 @@ import logging
 from redis import Redis
 from typing import Optional
 
+try:
+    from .datamodels.location import Location
+except ImportError:
+    from datamodels.location import Location
+
 log = logging.getLogger(__name__)
 
 
@@ -11,7 +16,7 @@ class RoutesCache:
     
     def __init__(self):
         self.redis_url = os.getenv("REDIS_URL")
-        self.cache_ttl = int(os.getenv("CACHE_TTL", "300"))  # Default 5 minutes
+        self.cache_ttl = 180    # 3 minutes
         self.redis = None
         
         if self.redis_url:
@@ -30,11 +35,11 @@ class RoutesCache:
             log.error(f"Redis connection failed: {e}")
             self.redis = None
     
-    def _generate_cache_key(self, origin: str, dest: str) -> str:
+    def _generate_cache_key(self, origin: Location, dest: Location) -> str:
         """Generate a consistent cache key for origin-destination pair"""
-        return f"route:{hash(f'{origin}_{dest}')}"
+        return f"route:{hash(f'{origin.to_key()}_{dest.to_key()}')}"
     
-    def get(self, origin: str, dest: str) -> Optional[str]:
+    def get(self, origin: Location, dest: Location) -> Optional[str]:
         """Get cached value for a route"""
         if not self.redis:
             log.error("Redis not connected")
@@ -45,16 +50,16 @@ class RoutesCache:
         try:
             cached_duration = self.redis.get(cache_key)
             if cached_duration:
-                log.info(f"Cache hit for route {origin[:10]}...→{dest[:10]}...")
+                log.info(f"Cache hit for {origin.get_name()} → {dest.get_name()}")
                 return cached_duration.decode("utf-8")
             else:
-                log.info(f"Cache miss for route {origin[:10]}...→{dest[:10]}...")
+                log.info(f"Cache miss for {origin.get_name()} → {dest.get_name()}")
                 return None
         except Exception as e:
             log.error(f"Redis get error: {e}")
             return None
     
-    def set(self, origin: str, dest: str, value: str) -> bool:
+    def set(self, origin: Location, dest: Location, value: str) -> bool:
         """Cache value for a route with TTL"""
         if not self.redis:
             return False
@@ -64,7 +69,7 @@ class RoutesCache:
         try:
             # Set with TTL in seconds
             self.redis.setex(cache_key, self.cache_ttl, value)
-            log.info(f"Cached route for {self.cache_ttl}s: {origin[:10]}...→{dest[:10]}... = {value}")
+            log.info(f"Cached route for {self.cache_ttl}s: {origin.get_name()} → {dest.get_name()} = {value}")
             return True
         except Exception as e:
             log.error(f"Redis setex error: {e}")
