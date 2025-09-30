@@ -28,8 +28,8 @@ if not api_client.api_key:
     raise ValueError("GOOGLE_MAPS_API_KEY is not set")
 log.info("Starting server...")
 
-@app.get("/")
-async def read_root():
+@app.get("/plaintext")
+async def plaintext():
     response_text = api_client.get_times_as_text()
 
     return PlainTextResponse(
@@ -48,7 +48,7 @@ def healthcheck():
     return {"status": "healthy"}
 
 
-@app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
 async def dashboard(response: Response):
     """Serve the dashboard HTML page"""
     try:
