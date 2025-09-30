@@ -4,6 +4,10 @@ import logging
 from fastapi import FastAPI, Response
 from fastapi.responses import PlainTextResponse, FileResponse, HTMLResponse
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 try:

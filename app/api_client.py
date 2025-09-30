@@ -1,18 +1,30 @@
 import requests
+import logging
 try:
     from .models import GWBRoutes
     from .constants import *
+    from .routes_cache import RoutesCache
 except ImportError:
     from models import GWBRoutes
     from constants import *
+    from routes_cache import RoutesCache
 
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
 
 class ApiClient:
     def __init__(self, api_key: str):
         self.api_key = api_key
+        self.cache = RoutesCache()
 
     def get_duration(self, origin, dest):
         """ Returns the duration of the route in traffic in human-readable format """
+        
+        # Check cache first and return early if found
+        cached_duration = self.cache.get(origin, dest)
+        if cached_duration:
+            return cached_duration
+
         base_url = "https://maps.googleapis.com/maps/api/directions/json"
         params = {
             "origin": origin,
@@ -26,9 +38,26 @@ class ApiClient:
         resp = requests.get(base_url, params=params)
         data = resp.json()
         try:
-            return data["routes"][0]["legs"][0]["duration_in_traffic"]["text"]
+            route_duration = data["routes"][0]["legs"][0]["duration_in_traffic"]["text"]
+            
+            # Cache the result
+            self.cache.set(origin, dest, route_duration)
+                    
+            return route_duration
         except (KeyError, IndexError):
             return "N/A"
+    
+    def clear_cache(self, pattern: str = "route:*"):
+        """Clear cache entries matching the pattern"""
+        return self.cache.clear_cache(pattern)
+    
+    def get_cache_info(self):
+        """Get information about cached routes"""
+        return self.cache.get_cache_info()
+    
+    def cache_health_check(self):
+        """Perform a health check on the cache"""
+        return self.cache.health_check()
 
     def get_times_as_model(self) -> GWBRoutes:
         return GWBRoutes(
