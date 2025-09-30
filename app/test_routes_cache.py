@@ -55,7 +55,7 @@ class MockRedis:
 class TestRoutesCacheIntegration:
     """Integration test covering all critical RoutesCache functionality"""
 
-    @patch.dict(os.environ, {"REDIS_URL": "redis://test", "CACHE_TTL": "300"})
+    @patch.dict(os.environ, {"REDIS_URL": "redis://test"})
     @patch('routes_cache.Redis.from_url')
     def test_routes_cache_complete_workflow(self, mock_from_url):
         """Test complete RoutesCache workflow: initialization, caching, retrieval, management"""
@@ -65,7 +65,7 @@ class TestRoutesCacheIntegration:
         # Test initialization with Redis URL
         cache = RoutesCache()
         assert cache.redis_url == "redis://test"
-        assert cache.cache_ttl == 300
+        assert cache.cache_ttl == 180
         assert cache.is_available() is True
         
         # Test cache miss
@@ -88,14 +88,14 @@ class TestRoutesCacheIntegration:
         # Test cache info
         info = cache.get_cache_info()
         assert info["total_cached_routes"] == 3
-        assert info["cache_ttl_seconds"] == 300
+        assert info["cache_ttl_seconds"] == 180
         assert info["redis_connected"] is True
         assert "redis_memory_usage" in info
         
         # Test health check
         health = cache.health_check()
         assert health["healthy"] is True
-        assert health["cache_ttl"] == 300
+        assert health["cache_ttl"] == 180
         
         # Test cache clearing
         cleared = cache.clear_cache("route:*")
@@ -113,7 +113,7 @@ class TestRoutesCacheIntegration:
         
         # Test initialization without Redis
         assert cache.redis_url is None
-        assert cache.cache_ttl == 300  # default
+        assert cache.cache_ttl == 180  # default
         assert cache.is_available() is False
         
         # Test operations without Redis

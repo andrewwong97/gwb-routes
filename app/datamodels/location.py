@@ -1,9 +1,12 @@
 class Location:
-    def __init__(self, lat: float, lon: float, name: str):
+    def __init__(self, lat: float, lon: float, name: str = None):
         self.lat = lat
         self.lon = lon
         self.name = name
         
+        if name is None:
+            self.name = f"{self.lat},{self.lon}"
+
     def to_key(self):
         return f"{self.lat},{self.lon}"
     
