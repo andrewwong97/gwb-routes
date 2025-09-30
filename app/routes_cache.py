@@ -69,7 +69,7 @@ class RoutesCache:
         try:
             # Set with TTL in seconds
             self.redis.setex(cache_key, self.cache_ttl, value)
-            log.info(f"Cached route for {self.cache_ttl}s: {origin.get_name()} → {dest.get_name()} = {value}")
+            log.info(f"Cached route for {self.cache_ttl}s: {origin.get_name()} → {dest.get_name()} = {value} | Cache key: {cache_key}")
             return True
         except Exception as e:
             log.error(f"Redis setex error: {e}")
