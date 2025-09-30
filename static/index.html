@@ -442,8 +442,8 @@
       // Load data when page loads
       document.addEventListener("DOMContentLoaded", loadTrafficData);
 
-      // Auto-refresh every 3 minutes
-      setInterval(loadTrafficData, 3 * 60 * 1000);
+      // Auto-refresh every 30 seconds
+      setInterval(loadTrafficData, 0.5 * 60 * 1000);
     </script>
   </body>
 </html>
