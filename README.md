@@ -11,6 +11,10 @@ https://console.cloud.google.com/welcome
 
 Save the API key somewhere secure, you'll use it later.
 
+# Development
+
+This is deployed as a FastAPI web server, serving some URLs with an HTML template backed by same-origin fetches for data.
+
 ## Usage
 
 Set up a python virtualenv and activate it:
@@ -24,10 +28,12 @@ Set up a python virtualenv and activate it:
 1. To run the fastapi server locally: `GOOGLE_MAPS_API_KEY=<the key> python app/index.py`
 2. To just run the core lookup: `python app/run_inline.py <the key>`
 
-## TidByt
+# TidByt
 
 Included in the root level directory is a Starlark .star file that can be compiled and rendered to a .webp executable for TidByt devices.
 It's not complete, but it is a start. For more docs, check out: https://tidbyt.dev/docs/build/build-for-tidbyt
+
+**November 2025**: As of late 2024, TidByt was acquired by Modal and developer support has declined greatly. That said, there is no plan to continue GWB routes support.
 
 ## How to use right now
 
