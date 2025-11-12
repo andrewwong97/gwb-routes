@@ -2,6 +2,7 @@ import os
 import logging
 from redis import Redis
 from typing import Optional
+from sentry_sdk import metrics
 
 try:
     from .datamodels.location import Location
@@ -50,13 +51,16 @@ class RoutesCache:
         try:
             cached_duration = self.redis.get(cache_key)
             if cached_duration:
+                metrics.count("redis.cache.hit", 1)
                 log.info(f"Cache hit for {origin.get_name()} → {dest.get_name()}")
                 return cached_duration.decode("utf-8")
             else:
+                metrics.count("redis.cache.miss", 1)
                 log.info(f"Cache miss for {origin.get_name()} → {dest.get_name()}")
                 return None
         except Exception as e:
             log.error(f"Redis get error: {e}")
+            metrics.count("redis.cache.error", 1)
             return None
     
     def set(self, origin: Location, dest: Location, value: str) -> bool:
