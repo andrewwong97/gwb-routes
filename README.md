@@ -18,6 +18,7 @@ This is deployed as a FastAPI web server, serving some URLs with an HTML templat
 ## Stack
 * FastAPI web server, deployed on Vercel with CI/CD. Implementation: app/index.py
 * Redis API, which caches data every 3 minutes. As of now, we are using free tier for Redis. Implementation: app/routes_cache.py
+* Sentry for logging, monitoring, and metrics. This is configured via an environment variable and initialized in api server.
 
 ## Usage
 
