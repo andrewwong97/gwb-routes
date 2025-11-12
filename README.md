@@ -15,6 +15,10 @@ Save the API key somewhere secure, you'll use it later.
 
 This is deployed as a FastAPI web server, serving some URLs with an HTML template backed by same-origin fetches for data.
 
+## Stack
+* FastAPI web server, deployed on Vercel with CI/CD. Implementation: app/index.py
+* Redis API, which caches data every 3 minutes. As of now, we are using free tier for Redis. Implementation: app/routes_cache.py
+
 ## Usage
 
 Set up a python virtualenv and activate it:
