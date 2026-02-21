@@ -221,6 +221,134 @@
         margin: 0;
       }
 
+      /* Route planner */
+      .route-planner {
+        margin-top: 36px;
+        padding-top: 28px;
+        border-top: 1px solid #e8e8e8;
+      }
+
+      .route-planner h2 {
+        font-size: 1.4rem;
+        color: #2c3e50;
+        margin-bottom: 16px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .route-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .route-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+      }
+
+      .route-input:focus {
+        border-color: #667eea;
+      }
+
+      .find-route-btn {
+        display: block;
+        width: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        margin-top: 4px;
+      }
+
+      .find-route-btn:hover {
+        opacity: 0.9;
+      }
+
+      .find-route-btn:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+
+      .recommendation-card {
+        margin-top: 20px;
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        text-align: center;
+      }
+
+      .rec-direction {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+
+      .rec-level {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #27ae60;
+        margin-bottom: 4px;
+      }
+
+      .rec-total {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        line-height: 1.1;
+        margin: 8px 0;
+      }
+
+      .rec-label {
+        font-size: 0.8rem;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .rec-savings {
+        margin-top: 14px;
+        font-size: 0.9rem;
+        color: #7f8c8d;
+      }
+
+      .rec-alt {
+        font-weight: 600;
+        color: #e74c3c;
+      }
+
+      .rec-saved {
+        margin-top: 12px;
+        font-size: 0.8rem;
+        color: #27ae60;
+      }
+
+      .route-error {
+        margin-top: 16px;
+        background: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
       @media (max-width: 768px) {
         .dashboard-container {
           gap: 20px;
@@ -363,6 +491,35 @@
         </button>
 
         <div class="last-updated" id="last-updated"></div>
+
+        <!-- Route Planner -->
+        <div class="route-planner">
+          <h2>Find Your Best Route</h2>
+          <div class="route-form">
+            <input
+              class="route-input"
+              id="origin-input"
+              type="text"
+              placeholder="Starting address or zip code"
+              autocomplete="street-address"
+            />
+            <input
+              class="route-input"
+              id="destination-input"
+              type="text"
+              placeholder="Destination address or zip code"
+              autocomplete="street-address"
+            />
+            <button class="find-route-btn" id="find-route-btn" onclick="findBestRoute()">
+              Find Best Route
+            </button>
+          </div>
+
+          <div id="route-result"></div>
+          <div id="route-error" class="route-error" style="display: none">
+            Unable to calculate route. Please check your addresses and try again.
+          </div>
+        </div>
       </div>
     </div>
 
@@ -439,8 +596,82 @@
         }
       }
 
-      // Load data when page loads
-      document.addEventListener("DOMContentLoaded", loadTrafficData);
+      async function findBestRoute() {
+        const origin = document.getElementById("origin-input").value.trim();
+        const destination = document.getElementById("destination-input").value.trim();
+        const btn = document.getElementById("find-route-btn");
+        const resultDiv = document.getElementById("route-result");
+        const errorDiv = document.getElementById("route-error");
+
+        if (!origin || !destination) {
+          errorDiv.textContent = "Please enter both a starting address and a destination.";
+          errorDiv.style.display = "block";
+          resultDiv.innerHTML = "";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Calculating…";
+        errorDiv.style.display = "none";
+        resultDiv.innerHTML = "";
+
+        try {
+          const params = new URLSearchParams({ origin, destination });
+          const response = await fetch(`${API_BASE}/recommend?${params}`);
+
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.detail || `HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Persist addresses so they're pre-filled on the next visit
+          const isFirstSave = !localStorage.getItem("gwb_origin");
+          localStorage.setItem("gwb_origin", origin);
+          localStorage.setItem("gwb_destination", destination);
+
+          const isUpper = data.recommended_level === "upper";
+          const levelLabel = isUpper ? "Upper Level" : "Lower Level";
+          const altLabel   = isUpper ? "Lower Level" : "Upper Level";
+          const altTotal   = isUpper ? data.lower_total : data.upper_total;
+
+          const savingsText =
+            data.time_saved === "same time"
+              ? `Same time as ${altLabel}`
+              : `Saves ${data.time_saved} vs <span class="rec-alt">${altLabel} (${altTotal})</span>`;
+
+          resultDiv.innerHTML = `
+            <div class="recommendation-card">
+              <div class="rec-direction">${data.direction}</div>
+              <div class="rec-level">${levelLabel}</div>
+              <div class="rec-total">${isUpper ? data.upper_total : data.lower_total}</div>
+              <div class="rec-label">Estimated total trip</div>
+              <div class="rec-savings">${savingsText}</div>
+              <div class="rec-saved">✓ Addresses saved${isFirstSave ? " for next time" : ""}</div>
+            </div>
+          `;
+        } catch (err) {
+          console.error("Route recommendation error:", err);
+          errorDiv.textContent =
+            err.message.includes("geocode")
+              ? "Could not find that starting address. Please try again with a more specific address."
+              : "Unable to calculate route. Please check your addresses and try again.";
+          errorDiv.style.display = "block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Find Best Route";
+        }
+      }
+
+      // Load data when page loads, and restore any saved route inputs
+      document.addEventListener("DOMContentLoaded", () => {
+        loadTrafficData();
+        const savedOrigin = localStorage.getItem("gwb_origin");
+        const savedDest   = localStorage.getItem("gwb_destination");
+        if (savedOrigin) document.getElementById("origin-input").value = savedOrigin;
+        if (savedDest)   document.getElementById("destination-input").value = savedDest;
+      });
 
       // Auto-refresh every 3 minutes
       setInterval(loadTrafficData, 3 * 60 * 1000);

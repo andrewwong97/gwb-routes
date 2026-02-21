@@ -1,7 +1,7 @@
 import os
 import logging
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, HTTPException, Query
 from fastapi.responses import PlainTextResponse, FileResponse, HTMLResponse
 
 from dotenv import load_dotenv
@@ -16,13 +16,13 @@ log = logging.getLogger(__name__)
 try:
     # Try relative imports first (works in production/package context)
     from .api_client import ApiClient
-    from .response_models import GWBRoutes
+    from .response_models import GWBRoutes, RouteRecommendation
     log.info("Using relative imports")
 except ImportError:
     # Fall back to absolute imports (works in local development)
     log.warning("Using absolute imports")
     from api_client import ApiClient
-    from response_models import GWBRoutes
+    from response_models import GWBRoutes, RouteRecommendation
 
 
 try:
@@ -59,6 +59,22 @@ async def read_times(response: Response):
     metrics.count("times.request", 1)
     response.headers["Cache-Control"] = "public, max-age=180, s-maxage=180"
     return data
+
+@app.get("/recommend", response_model=RouteRecommendation)
+async def recommend(
+    origin: str = Query(..., description="Starting address or lat,lon"),
+    destination: str = Query(..., description="Destination address or lat,lon"),
+):
+    try:
+        data = api_client.get_route_recommendation(origin, destination)
+        metrics.count("recommend.request", 1)
+        return data
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        log.error(f"Error getting route recommendation: {e}")
+        raise HTTPException(status_code=500, detail="Error calculating route recommendation")
+
 
 @app.get("/healthcheck")
 def healthcheck():
