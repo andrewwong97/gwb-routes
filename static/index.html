@@ -648,7 +648,7 @@
               <div class="rec-total">${isUpper ? data.upper_total : data.lower_total}</div>
               <div class="rec-label">Estimated total trip</div>
               <div class="rec-savings">${savingsText}</div>
-              <div class="rec-saved">✓ ${isFirstSave ? "Addresses saved for next time" : "Addresses updated"}</div>
+              <div class="rec-saved">✓ Addresses saved${isFirstSave ? " for next time" : ""}</div>
             </div>
           `;
         } catch (err) {
