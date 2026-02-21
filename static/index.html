@@ -258,6 +258,35 @@
         border-color: #667eea;
       }
 
+      .swap-container {
+        display: flex;
+        justify-content: center;
+        margin: -4px 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .swap-btn {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.2s, transform 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        padding: 0;
+      }
+
+      .swap-btn:hover {
+        border-color: #667eea;
+        transform: rotate(180deg);
+      }
+
       .find-route-btn {
         display: block;
         width: 100%;
@@ -503,6 +532,9 @@
               placeholder="Starting address or zip code"
               autocomplete="street-address"
             />
+            <div class="swap-container">
+              <button class="swap-btn" onclick="swapAddresses()" title="Swap origin and destination">⇅</button>
+            </div>
             <input
               class="route-input"
               id="destination-input"
@@ -594,6 +626,16 @@
           loading.style.display = "none";
           error.style.display = "block";
         }
+      }
+
+      function swapAddresses() {
+        const originInput = document.getElementById("origin-input");
+        const destInput = document.getElementById("destination-input");
+        const tmp = originInput.value;
+        originInput.value = destInput.value;
+        destInput.value = tmp;
+        document.getElementById("route-result").innerHTML = "";
+        document.getElementById("route-error").style.display = "none";
       }
 
       async function findBestRoute() {
