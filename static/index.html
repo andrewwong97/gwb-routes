@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GWB Routes - Real-time Traffic</title>
+
+    <!-- PostHog Analytics Spike -->
+    <!-- Replace POSTHOG_API_KEY with your key from https://app.posthog.com/project/settings -->
+    <script>
+      !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+" (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset isIdentified".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+      posthog.init('POSTHOG_API_KEY', {
+        api_host: 'https://us.i.posthog.com',
+        person_profiles: 'identified_only',
+      });
+    </script>
     <style>
       * {
         margin: 0;
@@ -486,7 +496,7 @@
           </div>
         </div>
 
-        <button class="refresh-btn" onclick="loadTrafficData()">
+        <button class="refresh-btn" onclick="posthog.capture('manual_refresh_clicked'); loadTrafficData()">
           🔄 Refresh Data
         </button>
 
@@ -586,11 +596,19 @@
             "last-updated"
           ).textContent = `Last updated: ${now.toLocaleTimeString()}`;
 
+          posthog.capture('dashboard_loaded', {
+            upper_level_nyc: data.upper_level_nyc,
+            lower_level_nyc: data.lower_level_nyc,
+            upper_level_nj: data.upper_level_nj,
+            lower_level_nj: data.lower_level_nj,
+          });
+
           // Show content
           loading.style.display = "none";
           content.style.display = "block";
         } catch (err) {
           console.error("Error loading traffic data:", err);
+          posthog.capture('traffic_data_error', { error: err.message });
           loading.style.display = "none";
           error.style.display = "block";
         }
@@ -615,6 +633,11 @@
         errorDiv.style.display = "none";
         resultDiv.innerHTML = "";
 
+        posthog.capture('route_recommendation_requested', {
+          has_saved_origin: !!localStorage.getItem('gwb_origin'),
+          has_saved_destination: !!localStorage.getItem('gwb_destination'),
+        });
+
         try {
           const params = new URLSearchParams({ origin, destination });
           const response = await fetch(`${API_BASE}/recommend?${params}`);
@@ -630,6 +653,13 @@
           const isFirstSave = !localStorage.getItem("gwb_origin");
           localStorage.setItem("gwb_origin", origin);
           localStorage.setItem("gwb_destination", destination);
+
+          posthog.capture('route_recommendation_succeeded', {
+            recommended_level: data.recommended_level,
+            direction: data.direction,
+            time_saved: data.time_saved,
+            is_first_save: isFirstSave,
+          });
 
           const isUpper = data.recommended_level === "upper";
           const levelLabel = isUpper ? "Upper Level" : "Lower Level";
@@ -653,6 +683,7 @@
           `;
         } catch (err) {
           console.error("Route recommendation error:", err);
+          posthog.capture('route_recommendation_failed', { error: err.message });
           errorDiv.textContent =
             err.message.includes("geocode")
               ? "Could not find that starting address. Please try again with a more specific address."
