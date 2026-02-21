@@ -60,25 +60,6 @@ async def read_times(response: Response):
     response.headers["Cache-Control"] = "public, max-age=180, s-maxage=180"
     return data
 
-@app.get("/autocomplete")
-async def autocomplete(input: str = Query(..., min_length=1)):
-    """Proxy Google Places Autocomplete so the API key never reaches the browser."""
-    import requests as _requests
-    resp = _requests.get(
-        "https://maps.googleapis.com/maps/api/place/autocomplete/json",
-        params={
-            "input": input,
-            "types": "geocode",
-            "components": "country:us",
-            "key": os.getenv("GOOGLE_MAPS_API_KEY"),
-        },
-        timeout=5,
-    )
-    data = resp.json()
-    predictions = [p["description"] for p in data.get("predictions", [])]
-    return {"predictions": predictions}
-
-
 @app.get("/recommend", response_model=RouteRecommendation)
 async def recommend(
     origin: str = Query(..., description="Starting address or lat,lon"),
