@@ -90,6 +90,11 @@ async def dashboard(response: Response):
             html_content = f.read()
         # Replace localhost:8000 with relative URLs for production
         html_content = html_content.replace('"http://localhost:8000"', '""')
+        # Inject the Maps API key for Places Autocomplete
+        html_content = html_content.replace(
+            "__GOOGLE_MAPS_API_KEY__",
+            os.getenv("GOOGLE_MAPS_API_KEY", ""),
+        )
         # Cache for 10 minutes - longer than data cache but not too long for UI updates
         response.headers["Cache-Control"] = "public, max-age=600, s-maxage=600"
         metrics.count("dashboard.request", 1)

@@ -4,6 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GWB Routes - Real-time Traffic</title>
+    <!-- Google Maps Places Autocomplete — key injected by server -->
+    <script>
+      function initAutocomplete() {
+        const options = {
+          types: ["geocode"],
+          componentRestrictions: { country: "us" },
+        };
+        new google.maps.places.Autocomplete(
+          document.getElementById("origin-input"),
+          options
+        );
+        new google.maps.places.Autocomplete(
+          document.getElementById("destination-input"),
+          options
+        );
+      }
+    </script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=__GOOGLE_MAPS_API_KEY__&libraries=places&callback=initAutocomplete"
+      async
+      defer
+    ></script>
     <style>
       * {
         margin: 0;
