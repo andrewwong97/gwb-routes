@@ -264,15 +264,16 @@
 
       .ac-dropdown {
         position: absolute;
-        top: calc(100% + 4px);
         left: 0;
         right: 0;
         background: white;
         border: 1px solid #e0e0e0;
         border-radius: 10px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-        z-index: 100;
+        z-index: 9999;
         overflow: hidden;
+        max-height: 240px;
+        overflow-y: auto;
       }
 
       .ac-item {
@@ -565,18 +566,37 @@
         let debounceTimer = null;
         let activeIndex = -1;
 
+        function positionDropdown() {
+          const rect = input.getBoundingClientRect();
+          const spaceBelow = window.innerHeight - rect.bottom;
+          if (spaceBelow < 200) {
+            // Flip above the input
+            dropdown.style.top = "auto";
+            dropdown.style.bottom = "calc(100% + 4px)";
+            dropdown.style.borderRadius = "10px 10px 10px 10px";
+          } else {
+            dropdown.style.top = "calc(100% + 4px)";
+            dropdown.style.bottom = "auto";
+          }
+        }
+
         function showDropdown(items) {
           if (!items.length) { dropdown.style.display = "none"; return; }
           dropdown.innerHTML = items.map((text, i) =>
             `<div class="ac-item" data-index="${i}">${text}</div>`
           ).join("");
           dropdown.querySelectorAll(".ac-item").forEach(el => {
-            el.addEventListener("mousedown", () => {
+            // pointerdown fires on both mouse and touch; preventDefault blocks
+            // the input's blur event so the dropdown stays visible long enough
+            // to register the selection.
+            el.addEventListener("pointerdown", (e) => {
+              e.preventDefault();
               input.value = el.textContent;
               dropdown.style.display = "none";
               activeIndex = -1;
             });
           });
+          positionDropdown();
           dropdown.style.display = "block";
           activeIndex = -1;
         }
@@ -592,6 +612,12 @@
               showDropdown(data.predictions || []);
             } catch (_) { dropdown.style.display = "none"; }
           }, 150);
+        });
+
+        // Close on blur (the pointerdown preventDefault keeps focus during
+        // tap selection, so this only fires when the user truly leaves the field)
+        input.addEventListener("blur", () => {
+          setTimeout(() => { dropdown.style.display = "none"; }, 150);
         });
 
         input.addEventListener("keydown", (e) => {
@@ -615,12 +641,6 @@
             return;
           }
           items.forEach((el, i) => el.classList.toggle("ac-active", i === activeIndex));
-        });
-
-        document.addEventListener("click", (e) => {
-          if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = "none";
-          }
         });
       }
 
