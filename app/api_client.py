@@ -98,13 +98,20 @@ class ApiClient:
             return ("N/A", float("inf"))
 
     def _geocode(self, address: str) -> tuple:
-        """Returns (lat, lon) for an address string, or None on failure."""
-        base_url = "https://maps.googleapis.com/maps/api/geocode/json"
-        params = {"address": address, "key": self.api_key}
+        """Returns (lat, lon) for an address string, or None on failure.
+        Uses the Directions API (already required for bridge times) so that
+        the Geocoding API does not need to be separately enabled on the key."""
+        base_url = "https://maps.googleapis.com/maps/api/directions/json"
+        params = {
+            "origin": address,
+            "destination": gwb_upper_nj_side.to_key(),
+            "mode": "driving",
+            "key": self.api_key,
+        }
         try:
             resp = requests.get(base_url, params=params)
             data = resp.json()
-            loc = data["results"][0]["geometry"]["location"]
+            loc = data["routes"][0]["legs"][0]["start_location"]
             return (loc["lat"], loc["lng"])
         except (KeyError, IndexError, Exception):
             return None
