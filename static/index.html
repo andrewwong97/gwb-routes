@@ -495,14 +495,14 @@
               id="origin-input"
               type="text"
               placeholder="Starting address (e.g. 123 Main St, Fort Lee, NJ)"
-              autocomplete="on"
+              autocomplete="street-address"
             />
             <input
               class="route-input"
               id="destination-input"
               type="text"
               placeholder="Destination (e.g. 350 5th Ave, New York, NY)"
-              autocomplete="on"
+              autocomplete="street-address"
             />
             <button class="find-route-btn" id="find-route-btn" onclick="findBestRoute()">
               Find Best Route
@@ -620,6 +620,10 @@
 
           const data = await response.json();
 
+          // Persist addresses so they're pre-filled on the next visit
+          localStorage.setItem("gwb_origin", origin);
+          localStorage.setItem("gwb_destination", destination);
+
           const isUpper = data.recommended_level === "upper";
           const levelLabel = isUpper ? "Upper Level" : "Lower Level";
           const altLabel   = isUpper ? "Lower Level" : "Upper Level";
@@ -652,8 +656,14 @@
         }
       }
 
-      // Load data when page loads
-      document.addEventListener("DOMContentLoaded", loadTrafficData);
+      // Load data when page loads, and restore any saved route inputs
+      document.addEventListener("DOMContentLoaded", () => {
+        loadTrafficData();
+        const savedOrigin = localStorage.getItem("gwb_origin");
+        const savedDest   = localStorage.getItem("gwb_destination");
+        if (savedOrigin) document.getElementById("origin-input").value = savedOrigin;
+        if (savedDest)   document.getElementById("destination-input").value = savedDest;
+      });
 
       // Auto-refresh every 3 minutes
       setInterval(loadTrafficData, 3 * 60 * 1000);
