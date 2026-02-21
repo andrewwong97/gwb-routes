@@ -4,28 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GWB Routes - Real-time Traffic</title>
-    <!-- Google Maps Places Autocomplete — key injected by server -->
-    <script>
-      function initAutocomplete() {
-        const options = {
-          types: ["geocode"],
-          componentRestrictions: { country: "us" },
-        };
-        new google.maps.places.Autocomplete(
-          document.getElementById("origin-input"),
-          options
-        );
-        new google.maps.places.Autocomplete(
-          document.getElementById("destination-input"),
-          options
-        );
-      }
-    </script>
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=__GOOGLE_MAPS_API_KEY__&libraries=places&callback=initAutocomplete"
-      async
-      defer
-    ></script>
     <style>
       * {
         margin: 0;
@@ -264,6 +242,10 @@
         gap: 12px;
       }
 
+      .autocomplete-wrap {
+        position: relative;
+      }
+
       .route-input {
         width: 100%;
         padding: 14px 16px;
@@ -278,6 +260,34 @@
 
       .route-input:focus {
         border-color: #667eea;
+      }
+
+      .ac-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        z-index: 100;
+        overflow: hidden;
+      }
+
+      .ac-item {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .ac-item:last-child {
+        border-bottom: none;
+      }
+
+      .ac-item:hover, .ac-item.ac-active {
+        background: #f5f5ff;
       }
 
       .find-route-btn {
@@ -512,20 +522,26 @@
         <div class="route-planner">
           <h2>Find Your Best Route</h2>
           <div class="route-form">
-            <input
-              class="route-input"
-              id="origin-input"
-              type="text"
-              placeholder="Starting address"
-              autocomplete="off"
-            />
-            <input
-              class="route-input"
-              id="destination-input"
-              type="text"
-              placeholder="Destination address"
-              autocomplete="off"
-            />
+            <div class="autocomplete-wrap">
+              <input
+                class="route-input"
+                id="origin-input"
+                type="text"
+                placeholder="Starting address"
+                autocomplete="off"
+              />
+              <div class="ac-dropdown" id="origin-dropdown" style="display:none"></div>
+            </div>
+            <div class="autocomplete-wrap">
+              <input
+                class="route-input"
+                id="destination-input"
+                type="text"
+                placeholder="Destination address"
+                autocomplete="off"
+              />
+              <div class="ac-dropdown" id="destination-dropdown" style="display:none"></div>
+            </div>
             <button class="find-route-btn" id="find-route-btn" onclick="findBestRoute()">
               Find Best Route
             </button>
@@ -541,6 +557,78 @@
 
     <script>
       const API_BASE = "http://localhost:8000";
+
+      // ── Autocomplete ──────────────────────────────────────────────────────
+      function setupAutocomplete(inputId, dropdownId) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        let debounceTimer = null;
+        let activeIndex = -1;
+
+        function showDropdown(items) {
+          if (!items.length) { dropdown.style.display = "none"; return; }
+          dropdown.innerHTML = items.map((text, i) =>
+            `<div class="ac-item" data-index="${i}">${text}</div>`
+          ).join("");
+          dropdown.querySelectorAll(".ac-item").forEach(el => {
+            el.addEventListener("mousedown", () => {
+              input.value = el.textContent;
+              dropdown.style.display = "none";
+              activeIndex = -1;
+            });
+          });
+          dropdown.style.display = "block";
+          activeIndex = -1;
+        }
+
+        input.addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          const q = input.value.trim();
+          if (q.length < 2) { dropdown.style.display = "none"; return; }
+          debounceTimer = setTimeout(async () => {
+            try {
+              const res = await fetch(`${API_BASE}/autocomplete?input=${encodeURIComponent(q)}`);
+              const data = await res.json();
+              showDropdown(data.predictions || []);
+            } catch (_) { dropdown.style.display = "none"; }
+          }, 250);
+        });
+
+        input.addEventListener("keydown", (e) => {
+          const items = dropdown.querySelectorAll(".ac-item");
+          if (!items.length || dropdown.style.display === "none") return;
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            activeIndex = Math.min(activeIndex + 1, items.length - 1);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            activeIndex = Math.max(activeIndex - 1, 0);
+          } else if (e.key === "Enter" && activeIndex >= 0) {
+            e.preventDefault();
+            input.value = items[activeIndex].textContent;
+            dropdown.style.display = "none";
+            activeIndex = -1;
+            return;
+          } else if (e.key === "Escape") {
+            dropdown.style.display = "none";
+            activeIndex = -1;
+            return;
+          }
+          items.forEach((el, i) => el.classList.toggle("ac-active", i === activeIndex));
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = "none";
+          }
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        setupAutocomplete("origin-input", "origin-dropdown");
+        setupAutocomplete("destination-input", "destination-dropdown");
+      });
+      // ─────────────────────────────────────────────────────────────────────
 
       function getTimeColor(timeString) {
         if (!timeString || timeString === "N/A") return "time-medium";
