@@ -332,6 +332,12 @@
         color: #e74c3c;
       }
 
+      .rec-saved {
+        margin-top: 12px;
+        font-size: 0.8rem;
+        color: #27ae60;
+      }
+
       .route-error {
         margin-top: 16px;
         background: #fee;
@@ -621,6 +627,7 @@
           const data = await response.json();
 
           // Persist addresses so they're pre-filled on the next visit
+          const isFirstSave = !localStorage.getItem("gwb_origin");
           localStorage.setItem("gwb_origin", origin);
           localStorage.setItem("gwb_destination", destination);
 
@@ -641,6 +648,7 @@
               <div class="rec-total">${isUpper ? data.upper_total : data.lower_total}</div>
               <div class="rec-label">Estimated total trip</div>
               <div class="rec-savings">${savingsText}</div>
+              <div class="rec-saved">✓ ${isFirstSave ? "Addresses saved for next time" : "Addresses updated"}</div>
             </div>
           `;
         } catch (err) {
