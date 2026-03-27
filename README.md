@@ -6,10 +6,10 @@ This script fetches current driving times (with traffic) from your origin to the
 
 ## Getting an API key
 
-Visit the following Google Cloud console and create a project with API access. Restrict the API key to only use Directions API.
+Visit the following Google Cloud console and create a project with API access. Restrict the API key to only use Directions and Places API.
 https://console.cloud.google.com/welcome
 
-Save the API key somewhere secure, you'll use it later.
+Save the API key somewhere secure, you'll use it later for Vercel environment variabbe.
 
 # Development
 
