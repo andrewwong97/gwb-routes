@@ -14,404 +14,434 @@
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Oxygen, Ubuntu, Cantarell, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #0f1117;
         min-height: 100vh;
-        color: #333;
-        padding: 20px;
+        color: #e1e4e8;
+      }
+
+      .hero {
+        background: linear-gradient(
+          180deg,
+          rgba(56, 97, 251, 0.15) 0%,
+          rgba(15, 17, 23, 0) 100%
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 40px 20px 32px;
+        text-align: center;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(56, 97, 251, 0.12);
+        border: 1px solid rgba(56, 97, 251, 0.25);
+        color: #7b9cff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+      }
+
+      .hero-badge .pulse {
+        width: 6px;
+        height: 6px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+
+      .hero h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+      }
+
+      .hero p {
+        color: #7d8590;
+        font-size: 1rem;
       }
 
       .container {
-        max-width: 800px;
+        max-width: 880px;
         margin: 0 auto;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        padding: 30px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
+        padding: 32px 20px 48px;
       }
 
-      .header {
-        text-align: center;
-        margin-bottom: 32px;
-      }
-
-      .header h1 {
-        font-size: 2.5rem;
-        color: #2c3e50;
-        margin-bottom: 10px;
-        font-weight: 700;
-      }
-
-      .header p {
-        color: #7f8c8d;
-        font-size: 1.1rem;
-      }
-
+      /* Loading & Error */
       .loading {
         text-align: center;
-        padding: 40px;
-        color: #7f8c8d;
-        font-size: 1.2rem;
+        padding: 60px 20px;
+        color: #7d8590;
+        font-size: 1rem;
       }
 
       .spinner {
         display: inline-block;
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #667eea;
+        width: 32px;
+        height: 32px;
+        border: 3px solid rgba(255, 255, 255, 0.08);
+        border-top: 3px solid #3861fb;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 20px;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 16px;
       }
 
       @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
 
-      .dashboard-container {
+      .error {
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.25);
+        color: #f85149;
+        padding: 16px 20px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      /* Section labels */
+      .section-label {
         display: flex;
-        flex-direction: column;
-        gap: 24px;
-        margin: 0 auto;
-        margin-bottom: 32px;
-        max-width: 640px;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #7d8590;
+      }
+
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      /* Dashboard grid */
+      .direction-group {
+        margin-bottom: 28px;
       }
 
       .dashboard-row {
-        display: flex;
-        gap: 24px;
-        width: 100%;
-        align-items: stretch;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
       }
 
       .dashboard-card {
-        background: white;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 16px;
-        padding: 28px;
+        padding: 24px;
         text-align: center;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border: 2px solid transparent;
-        flex: 1;
-        min-height: 180px;
+        transition: background 0.2s ease, border-color 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .dashboard-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 16px 16px 0 0;
+        opacity: 0;
+        transition: opacity 0.2s ease;
       }
 
       .dashboard-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
       }
 
-      .card-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
+      .dashboard-card:hover::before {
+        opacity: 1;
+      }
+
+      .time-good::before { background: #4ade80; }
+      .time-medium::before { background: #fbbf24; }
+      .time-bad::before { background: #f87171; }
+
+      .card-level {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #7d8590;
         margin-bottom: 12px;
       }
 
-      .card-direction {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #2c3e50;
-      }
-
-      .card-level {
-        font-size: 0.8rem;
-        color: #7f8c8d;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 8px;
+      .card-header {
+        display: none;
       }
 
       .card-time {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
         font-weight: 700;
-        margin: 16px 0;
-        transition: all 0.3s ease;
-        line-height: 1.1;
-        height: 2.75rem;
+        margin: 8px 0;
+        line-height: 1;
+        height: 2.8rem;
         display: flex;
         align-items: center;
         justify-content: center;
         white-space: nowrap;
-        overflow: hidden;
+        font-variant-numeric: tabular-nums;
+        transition: color 0.3s ease;
       }
 
+      .time-good .card-time { color: #4ade80; }
+      .time-medium .card-time { color: #fbbf24; }
+      .time-bad .card-time { color: #f87171; }
+
       .card-label {
-        font-size: 0.75rem;
-        color: #95a5a6;
+        font-size: 0.7rem;
+        color: #484f58;
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-top: 8px;
       }
 
-      /* Color coding based on time ranges */
-      .time-good {
-        color: #27ae60;
-        border-color: #27ae60;
-      }
-
-      .time-medium {
-        color: #f39c12;
-        border-color: #f39c12;
-      }
-
-      .time-bad {
-        color: #e74c3c;
-        border-color: #e74c3c;
-      }
-
-      .time-good .card-time {
-        color: #27ae60;
-      }
-
-      .time-medium .card-time {
-        color: #f39c12;
-      }
-
-      .time-bad .card-time {
-        color: #e74c3c;
-      }
-
-      .refresh-btn {
-        display: block;
-        margin: 0 auto;
-        margin-bottom: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 15px 30px;
-        border-radius: 25px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
-      }
-
-      .refresh-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
-      }
-
-      .refresh-btn:active {
-        transform: translateY(0);
-      }
-
-      .error {
-        background: #fee;
-        border: 1px solid #fcc;
-        color: #c33;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
+      /* Actions bar */
+      .actions-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         margin-bottom: 32px;
+        padding: 0 4px;
       }
 
       .last-updated {
-        text-align: center;
-        color: #7f8c8d;
-        font-size: 0.9rem;
-        margin: 0;
+        color: #484f58;
+        font-size: 0.8rem;
+      }
+
+      .refresh-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(56, 97, 251, 0.1);
+        border: 1px solid rgba(56, 97, 251, 0.25);
+        color: #7b9cff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+        font-family: inherit;
+      }
+
+      .refresh-btn:hover {
+        background: rgba(56, 97, 251, 0.18);
+        border-color: rgba(56, 97, 251, 0.4);
+      }
+
+      .refresh-btn:active {
+        transform: scale(0.97);
       }
 
       /* Route planner */
       .route-planner {
-        margin-top: 36px;
-        padding-top: 28px;
-        border-top: 1px solid #e8e8e8;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 28px;
       }
 
       .route-planner h2 {
-        font-size: 1.4rem;
-        color: #2c3e50;
-        margin-bottom: 16px;
-        font-weight: 700;
-        text-align: center;
+        font-size: 1.1rem;
+        color: #e1e4e8;
+        margin-bottom: 20px;
+        font-weight: 600;
       }
 
       .route-form {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
       }
 
       .route-input {
         width: 100%;
-        padding: 14px 16px;
-        border: 2px solid #e0e0e0;
-        border-radius: 12px;
-        font-size: 1rem;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        font-size: 0.95rem;
         font-family: inherit;
+        color: #e1e4e8;
         outline: none;
-        transition: border-color 0.2s;
-        box-sizing: border-box;
+        transition: border-color 0.2s, background 0.2s;
+      }
+
+      .route-input::placeholder {
+        color: #484f58;
       }
 
       .route-input:focus {
-        border-color: #667eea;
+        border-color: rgba(56, 97, 251, 0.5);
+        background: rgba(255, 255, 255, 0.06);
       }
 
       .swap-container {
         display: flex;
         justify-content: center;
-        margin: -4px 0;
+        margin: -2px 0;
         position: relative;
         z-index: 1;
       }
 
       .swap-btn {
-        background: white;
-        border: 2px solid #e0e0e0;
+        background: #1c1f26;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        font-size: 1.1rem;
+        width: 32px;
+        height: 32px;
+        font-size: 0.95rem;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: border-color 0.2s, transform 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        color: #7d8590;
+        transition: border-color 0.2s, color 0.2s, transform 0.3s ease;
         padding: 0;
       }
 
       .swap-btn:hover {
-        border-color: #667eea;
+        border-color: rgba(56, 97, 251, 0.4);
+        color: #7b9cff;
         transform: rotate(180deg);
       }
 
       .find-route-btn {
         display: block;
         width: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #3861fb;
         color: white;
         border: none;
-        padding: 15px;
-        border-radius: 12px;
-        font-size: 1.05rem;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 0.95rem;
         font-weight: 600;
         cursor: pointer;
-        transition: opacity 0.2s;
+        transition: background 0.2s;
         margin-top: 4px;
+        font-family: inherit;
       }
 
       .find-route-btn:hover {
-        opacity: 0.9;
+        background: #2d4fd8;
       }
 
       .find-route-btn:disabled {
-        opacity: 0.6;
+        opacity: 0.5;
         cursor: default;
       }
 
       .recommendation-card {
         margin-top: 20px;
-        background: white;
-        border-radius: 16px;
+        background: rgba(74, 222, 128, 0.06);
+        border: 1px solid rgba(74, 222, 128, 0.15);
+        border-radius: 12px;
         padding: 24px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         text-align: center;
       }
 
       .rec-direction {
-        font-size: 0.85rem;
-        color: #7f8c8d;
+        font-size: 0.75rem;
+        color: #7d8590;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         margin-bottom: 8px;
       }
 
       .rec-level {
-        font-size: 1.8rem;
+        font-size: 1.4rem;
         font-weight: 700;
-        color: #27ae60;
+        color: #4ade80;
         margin-bottom: 4px;
       }
 
       .rec-total {
-        font-size: 2.8rem;
+        font-size: 2.4rem;
         font-weight: 700;
-        color: #2c3e50;
+        color: #ffffff;
         line-height: 1.1;
         margin: 8px 0;
       }
 
       .rec-label {
-        font-size: 0.8rem;
-        color: #95a5a6;
+        font-size: 0.7rem;
+        color: #484f58;
         text-transform: uppercase;
         letter-spacing: 1px;
       }
 
       .rec-savings {
         margin-top: 14px;
-        font-size: 0.9rem;
-        color: #7f8c8d;
+        font-size: 0.85rem;
+        color: #7d8590;
       }
 
       .rec-alt {
         font-weight: 600;
-        color: #e74c3c;
+        color: #f87171;
       }
 
       .rec-saved {
         margin-top: 12px;
-        font-size: 0.8rem;
-        color: #27ae60;
+        font-size: 0.75rem;
+        color: #4ade80;
       }
 
       .route-error {
         margin-top: 16px;
-        background: #fee;
-        border: 1px solid #fcc;
-        color: #c33;
-        padding: 14px 16px;
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.25);
+        color: #f85149;
+        padding: 12px 16px;
         border-radius: 10px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         text-align: center;
       }
 
-      @media (max-width: 768px) {
-        .dashboard-container {
-          gap: 20px;
-          margin-bottom: 24px;
+      /* Footer */
+      .footer {
+        text-align: center;
+        padding: 24px 20px 32px;
+        color: #30363d;
+        font-size: 0.75rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 640px) {
+        .hero {
+          padding: 28px 16px 24px;
         }
 
-        .dashboard-row {
-          gap: 16px;
-        }
-
-        .dashboard-card {
-          padding: 20px;
-          min-height: 150px;
-        }
-
-        .card-time {
-          font-size: 2.2rem;
-          height: 2.4rem;
-          margin: 12px 0;
-        }
-
-        .header h1 {
-          font-size: 2rem;
+        .hero h1 {
+          font-size: 1.6rem;
         }
 
         .container {
-          padding: 20px;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .dashboard-container {
-          gap: 16px;
-          margin-bottom: 20px;
+          padding: 20px 16px 32px;
         }
 
         .dashboard-row {
@@ -419,45 +449,56 @@
         }
 
         .dashboard-card {
-          padding: 16px;
-          border-radius: 12px;
-          min-height: 130px;
+          padding: 18px 14px;
+        }
+
+        .card-time {
+          font-size: 2.2rem;
+          height: 2.2rem;
+        }
+
+        .actions-bar {
+          flex-direction: column-reverse;
+          gap: 12px;
+          align-items: stretch;
+          text-align: center;
+        }
+
+        .refresh-btn {
+          justify-content: center;
+        }
+
+        .route-planner {
+          padding: 20px;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .dashboard-card {
+          padding: 14px 10px;
         }
 
         .card-time {
           font-size: 1.8rem;
-          margin: 10px 0;
-          height: 2rem;
-        }
-
-        .card-header {
-          margin-bottom: 8px;
-        }
-
-        .card-direction {
-          font-size: 0.9rem;
-        }
-
-        .card-level {
-          font-size: 0.75rem;
-        }
-
-        .card-label {
-          font-size: 0.7rem;
+          height: 1.8rem;
         }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>🌉 GWB Routes</h1>
-        <p>Real-time traffic information for George Washington Bridge</p>
+    <div class="hero">
+      <div class="hero-badge">
+        <span class="pulse"></span>
+        Live Traffic
       </div>
+      <h1>GWB Routes</h1>
+      <p>George Washington Bridge crossing times</p>
+    </div>
 
+    <div class="container">
       <div id="loading" class="loading">
         <div class="spinner"></div>
-        <p>Loading traffic information...</p>
+        <p>Loading traffic data...</p>
       </div>
 
       <div id="error" class="error" style="display: none">
@@ -467,46 +508,44 @@
       </div>
 
       <div id="content" style="display: none">
-        <div class="dashboard-container">
-          <!-- Row 1: NJ to NYC -->
-          <!-- NJ to NYC - Upper Level -->
+        <!-- NJ to NYC -->
+        <div class="direction-group">
+          <div class="section-label">NJ &rarr; NYC</div>
           <div class="dashboard-row">
             <div class="dashboard-card" id="card-upper-nyc">
               <div class="card-header">
-                <span class="card-direction">🏙️ NJ → NYC</span>
+                <span class="card-direction">NJ &rarr; NYC</span>
               </div>
               <div class="card-level">Upper Level</div>
               <div class="card-time" id="upper-level-nyc">--</div>
               <div class="card-label">Travel Time</div>
             </div>
-
-            <!-- NJ to NYC - Lower Level -->
             <div class="dashboard-card" id="card-lower-nyc">
               <div class="card-header">
-                <span class="card-direction">🏙️ NJ → NYC</span>
+                <span class="card-direction">NJ &rarr; NYC</span>
               </div>
               <div class="card-level">Lower Level</div>
               <div class="card-time" id="lower-level-nyc">--</div>
               <div class="card-label">Travel Time</div>
             </div>
           </div>
+        </div>
 
-          <!-- Row 2: NYC to NJ -->
-          <!-- NYC to NJ - Upper Level -->
+        <!-- NYC to NJ -->
+        <div class="direction-group">
+          <div class="section-label">NYC &rarr; NJ</div>
           <div class="dashboard-row">
             <div class="dashboard-card" id="card-upper-nj">
               <div class="card-header">
-                <span class="card-direction">🐱 NYC → NJ</span>
+                <span class="card-direction">NYC &rarr; NJ</span>
               </div>
               <div class="card-level">Upper Level</div>
               <div class="card-time" id="upper-level-nj">--</div>
               <div class="card-label">Travel Time</div>
             </div>
-
-            <!-- NYC to NJ - Lower Level -->
             <div class="dashboard-card" id="card-lower-nj">
               <div class="card-header">
-                <span class="card-direction">🐱 NYC → NJ</span>
+                <span class="card-direction">NYC &rarr; NJ</span>
               </div>
               <div class="card-level">Lower Level</div>
               <div class="card-time" id="lower-level-nj">--</div>
@@ -515,11 +554,13 @@
           </div>
         </div>
 
-        <button class="refresh-btn" onclick="loadTrafficData()">
-          🔄 Refresh Data
-        </button>
-
-        <div class="last-updated" id="last-updated"></div>
+        <!-- Actions -->
+        <div class="actions-bar">
+          <div class="last-updated" id="last-updated"></div>
+          <button class="refresh-btn" onclick="loadTrafficData()">
+            &#8635; Refresh
+          </button>
+        </div>
 
         <!-- Route Planner -->
         <div class="route-planner">
@@ -533,7 +574,13 @@
               autocomplete="street-address"
             />
             <div class="swap-container">
-              <button class="swap-btn" onclick="swapAddresses()" title="Swap origin and destination">⇅</button>
+              <button
+                class="swap-btn"
+                onclick="swapAddresses()"
+                title="Swap origin and destination"
+              >
+                &#8645;
+              </button>
             </div>
             <input
               class="route-input"
@@ -542,31 +589,34 @@
               placeholder="Destination address or zip code"
               autocomplete="street-address"
             />
-            <button class="find-route-btn" id="find-route-btn" onclick="findBestRoute()">
+            <button
+              class="find-route-btn"
+              id="find-route-btn"
+              onclick="findBestRoute()"
+            >
               Find Best Route
             </button>
           </div>
 
           <div id="route-result"></div>
           <div id="route-error" class="route-error" style="display: none">
-            Unable to calculate route. Please check your addresses and try again.
+            Unable to calculate route. Please check your addresses and try
+            again.
           </div>
         </div>
       </div>
     </div>
+
+    <div class="footer">GWB Routes &middot; Powered by Google Maps</div>
 
     <script>
       const API_BASE = "http://localhost:8000";
 
       function getTimeColor(timeString) {
         if (!timeString || timeString === "N/A") return "time-medium";
-
-        // Extract number from time string (e.g., "3 mins" -> 3)
         const match = timeString.match(/(\d+)/);
         if (!match) return "time-medium";
-
         const minutes = parseInt(match[1]);
-
         if (minutes <= 5) return "time-good";
         if (minutes <= 9) return "time-medium";
         return "time-bad";
@@ -575,14 +625,8 @@
       function updateCard(cardId, timeId, timeValue) {
         const card = document.getElementById(cardId);
         const timeElement = document.getElementById(timeId);
-
-        // Update the time text
         timeElement.textContent = timeValue || "N/A";
-
-        // Remove existing color classes
         card.classList.remove("time-good", "time-medium", "time-bad");
-
-        // Add appropriate color class
         const colorClass = getTimeColor(timeValue);
         card.classList.add(colorClass);
       }
@@ -592,33 +636,27 @@
         const error = document.getElementById("error");
         const content = document.getElementById("content");
 
-        // Show loading state
         loading.style.display = "block";
         error.style.display = "none";
         content.style.display = "none";
 
         try {
           const response = await fetch(`${API_BASE}/times`);
-
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-
           const data = await response.json();
 
-          // Update each card with data and color coding
           updateCard("card-upper-nyc", "upper-level-nyc", data.upper_level_nyc);
           updateCard("card-lower-nyc", "lower-level-nyc", data.lower_level_nyc);
           updateCard("card-upper-nj", "upper-level-nj", data.upper_level_nj);
           updateCard("card-lower-nj", "lower-level-nj", data.lower_level_nj);
 
-          // Update last updated time
           const now = new Date();
           document.getElementById(
             "last-updated"
-          ).textContent = `Last updated: ${now.toLocaleTimeString()}`;
+          ).textContent = `Updated ${now.toLocaleTimeString()}`;
 
-          // Show content
           loading.style.display = "none";
           content.style.display = "block";
         } catch (err) {
@@ -640,20 +678,23 @@
 
       async function findBestRoute() {
         const origin = document.getElementById("origin-input").value.trim();
-        const destination = document.getElementById("destination-input").value.trim();
+        const destination = document
+          .getElementById("destination-input")
+          .value.trim();
         const btn = document.getElementById("find-route-btn");
         const resultDiv = document.getElementById("route-result");
         const errorDiv = document.getElementById("route-error");
 
         if (!origin || !destination) {
-          errorDiv.textContent = "Please enter both a starting address and a destination.";
+          errorDiv.textContent =
+            "Please enter both a starting address and a destination.";
           errorDiv.style.display = "block";
           resultDiv.innerHTML = "";
           return;
         }
 
         btn.disabled = true;
-        btn.textContent = "Calculating…";
+        btn.textContent = "Calculating\u2026";
         errorDiv.style.display = "none";
         resultDiv.innerHTML = "";
 
@@ -668,15 +709,14 @@
 
           const data = await response.json();
 
-          // Persist addresses so they're pre-filled on the next visit
           const isFirstSave = !localStorage.getItem("gwb_origin");
           localStorage.setItem("gwb_origin", origin);
           localStorage.setItem("gwb_destination", destination);
 
           const isUpper = data.recommended_level === "upper";
           const levelLabel = isUpper ? "Upper Level" : "Lower Level";
-          const altLabel   = isUpper ? "Lower Level" : "Upper Level";
-          const altTotal   = isUpper ? data.lower_total : data.upper_total;
+          const altLabel = isUpper ? "Lower Level" : "Upper Level";
+          const altTotal = isUpper ? data.lower_total : data.upper_total;
 
           const savingsText =
             data.time_saved === "same time"
@@ -690,15 +730,14 @@
               <div class="rec-total">${isUpper ? data.upper_total : data.lower_total}</div>
               <div class="rec-label">Estimated total trip</div>
               <div class="rec-savings">${savingsText}</div>
-              <div class="rec-saved">✓ Addresses saved${isFirstSave ? " for next time" : ""}</div>
+              <div class="rec-saved">\u2713 Addresses saved${isFirstSave ? " for next time" : ""}</div>
             </div>
           `;
         } catch (err) {
           console.error("Route recommendation error:", err);
-          errorDiv.textContent =
-            err.message.includes("geocode")
-              ? "Could not find that starting address. Please try again with a more specific address."
-              : "Unable to calculate route. Please check your addresses and try again.";
+          errorDiv.textContent = err.message.includes("geocode")
+            ? "Could not find that starting address. Please try again with a more specific address."
+            : "Unable to calculate route. Please check your addresses and try again.";
           errorDiv.style.display = "block";
         } finally {
           btn.disabled = false;
@@ -706,13 +745,14 @@
         }
       }
 
-      // Load data when page loads, and restore any saved route inputs
       document.addEventListener("DOMContentLoaded", () => {
         loadTrafficData();
         const savedOrigin = localStorage.getItem("gwb_origin");
-        const savedDest   = localStorage.getItem("gwb_destination");
-        if (savedOrigin) document.getElementById("origin-input").value = savedOrigin;
-        if (savedDest)   document.getElementById("destination-input").value = savedDest;
+        const savedDest = localStorage.getItem("gwb_destination");
+        if (savedOrigin)
+          document.getElementById("origin-input").value = savedOrigin;
+        if (savedDest)
+          document.getElementById("destination-input").value = savedDest;
       });
 
       // Auto-refresh every 3 minutes
