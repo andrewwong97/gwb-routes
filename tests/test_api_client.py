@@ -147,8 +147,8 @@ class TestPlacesAutocomplete:
         mock_resp = Mock()
         mock_resp.json.return_value = {
             "predictions": [
-                {"description": "123 Main St", "place_id": "abc"},
-                {"description": "456 Oak Ave", "place_id": "def"},
+                {"description": "123 Main St, Fort Lee, NJ", "place_id": "abc"},
+                {"description": "456 Oak Ave, New York, NY", "place_id": "def"},
             ],
             "status": "OK",
         }
@@ -157,7 +157,7 @@ class TestPlacesAutocomplete:
         result = client.places_autocomplete("123 Main")
         assert result["status"] == "OK"
         assert len(result["predictions"]) == 2
-        assert result["predictions"][0]["description"] == "123 Main St"
+        assert result["predictions"][0]["description"] == "123 Main St, Fort Lee, NJ"
 
     @patch("api_client.requests.get")
     def test_handles_api_error_status(self, mock_get, client):
