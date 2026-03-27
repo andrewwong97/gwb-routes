@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import logging
 from typing import Optional
@@ -63,12 +64,39 @@ log.info("Starting server...")
 
 ANALYTICS_SKIP_PATHS = {"/healthcheck", "/favicon.ico", "/analytics"}
 
+# Patterns that identify bot / crawler / non-human traffic.
+# Matched case-insensitively against the User-Agent header.
+_BOT_UA_PATTERN = re.compile(
+    r"bot|crawl|spider|slurp|bingpreview|mediapartners|facebookexternalhit"
+    r"|linkedinbot|twitterbot|whatsapp|telegrambot|discordbot|applebot"
+    r"|yandex|baidu|duckduckbot|sogou|exabot|semrush|ahrefs|mj12bot|dotbot"
+    r"|rogerbot|gigabot|ia_archiver|archive\.org_bot|httrack|wget|curl"
+    r"|python-requests|python-urllib|go-http-client|java/|perl|ruby"
+    r"|libwww|lwp-|httpunit|nutch|phpcrawl|biglotron|teoma|convera"
+    r"|gigablast|ia_archiver|webmon|htdig|grub|netresearchserver"
+    r"|speedy|fluffy|findlink|msrbot|panscient|yadirectfetcher"
+    r"|pingdom|uptimerobot|monitis|statuscake|site24x7"
+    r"|headlesschrome|phantomjs|puppeteer|playwright|selenium",
+    re.IGNORECASE,
+)
+
+
+def _is_bot(user_agent: Optional[str]) -> bool:
+    """Return True if the user-agent looks like a bot or automated client."""
+    if not user_agent:
+        return True  # No UA is almost certainly not a real browser
+    return _BOT_UA_PATTERN.search(user_agent) is not None
+
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     """Log every request to the analytics table."""
     # Skip logging for analytics/health endpoints to avoid feedback loops
     if any(request.url.path.startswith(p) for p in ANALYTICS_SKIP_PATHS):
+        return await call_next(request)
+
+    # Skip logging for bot / non-human traffic to conserve database storage
+    if _is_bot(request.headers.get("user-agent")):
         return await call_next(request)
 
     start = time.monotonic()
