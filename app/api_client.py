@@ -125,6 +125,7 @@ class ApiClient:
         params = {
             "input": input_text,
             "components": "country:us",
+            "locationbias": "rectangle:39.0,-75.6|41.4,-73.3",
             "key": self.api_key,
         }
         try:
@@ -134,10 +135,12 @@ class ApiClient:
             if status != "OK":
                 log.warning(f"Places API status: {status}, error: {data.get('error_message', 'none')}")
                 return {"predictions": [], "status": status, "error": data.get("error_message")}
+            allowed_states = ("NJ", "NY", "New Jersey", "New York")
             return {
                 "predictions": [
                     {"description": p["description"], "place_id": p["place_id"]}
                     for p in data.get("predictions", [])
+                    if any(state in p.get("description", "") for state in allowed_states)
                 ],
                 "status": "OK",
             }

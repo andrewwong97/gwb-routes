@@ -118,7 +118,7 @@ class TestPlacesAutocompleteEndpoint:
         mock_resp = Mock()
         mock_resp.json.return_value = {
             "predictions": [
-                {"description": "123 Main St", "place_id": "abc"},
+                {"description": "123 Main St, Fort Lee, NJ", "place_id": "abc"},
             ],
             "status": "OK",
         }
