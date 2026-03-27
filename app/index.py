@@ -76,6 +76,12 @@ async def recommend(
         raise HTTPException(status_code=500, detail="Error calculating route recommendation")
 
 
+@app.get("/places/autocomplete")
+async def places_autocomplete(input: str = Query(..., min_length=2)):
+    results = api_client.places_autocomplete(input)
+    return results
+
+
 @app.get("/healthcheck")
 def healthcheck():
     return {"status": "healthy"}

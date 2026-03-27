@@ -97,6 +97,27 @@ class ApiClient:
         except (KeyError, IndexError, Exception):
             return ("N/A", float("inf"))
 
+    def places_autocomplete(self, input_text: str) -> list:
+        """Return a list of place predictions for the given input text."""
+        url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
+        params = {
+            "input": input_text,
+            "types": "geocode|establishment",
+            "components": "country:us",
+            "key": self.api_key,
+        }
+        try:
+            resp = requests.get(url, params=params)
+            data = resp.json()
+            if data.get("status") != "OK":
+                return []
+            return [
+                {"description": p["description"], "place_id": p["place_id"]}
+                for p in data.get("predictions", [])
+            ]
+        except Exception:
+            return []
+
     def _geocode(self, address: str) -> tuple:
         """Returns (lat, lon) for an address string, or None on failure.
         Uses the Directions API (already required for bridge times) so that

@@ -300,6 +300,43 @@
         background: rgba(255, 255, 255, 0.06);
       }
 
+      .autocomplete-wrapper {
+        position: relative;
+      }
+
+      .autocomplete-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #1c1f26;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        margin-top: 4px;
+        max-height: 220px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+      }
+
+      .autocomplete-item {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        color: #c9d1d9;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .autocomplete-item:last-child {
+        border-bottom: none;
+      }
+
+      .autocomplete-item:hover,
+      .autocomplete-item.active {
+        background: rgba(56, 97, 251, 0.15);
+        color: #ffffff;
+      }
+
       .swap-container {
         display: flex;
         justify-content: center;
@@ -566,13 +603,16 @@
         <div class="route-planner">
           <h2>Find Your Best Route</h2>
           <div class="route-form">
-            <input
-              class="route-input"
-              id="origin-input"
-              type="text"
-              placeholder="Starting address or zip code"
-              autocomplete="street-address"
-            />
+            <div class="autocomplete-wrapper">
+              <input
+                class="route-input"
+                id="origin-input"
+                type="text"
+                placeholder="Starting address or zip code"
+                autocomplete="off"
+              />
+              <div class="autocomplete-list" id="origin-autocomplete"></div>
+            </div>
             <div class="swap-container">
               <button
                 class="swap-btn"
@@ -582,13 +622,16 @@
                 &#8645;
               </button>
             </div>
-            <input
-              class="route-input"
-              id="destination-input"
-              type="text"
-              placeholder="Destination address or zip code"
-              autocomplete="street-address"
-            />
+            <div class="autocomplete-wrapper">
+              <input
+                class="route-input"
+                id="destination-input"
+                type="text"
+                placeholder="Destination address or zip code"
+                autocomplete="off"
+              />
+              <div class="autocomplete-list" id="destination-autocomplete"></div>
+            </div>
             <button
               class="find-route-btn"
               id="find-route-btn"
@@ -745,8 +788,91 @@
         }
       }
 
+      // --- Autocomplete ---
+      function setupAutocomplete(inputId, listId) {
+        const input = document.getElementById(inputId);
+        const list = document.getElementById(listId);
+        let debounceTimer = null;
+        let activeIndex = -1;
+
+        input.addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          const query = input.value.trim();
+          if (query.length < 2) {
+            list.style.display = "none";
+            return;
+          }
+          debounceTimer = setTimeout(async () => {
+            try {
+              const resp = await fetch(
+                `${API_BASE}/places/autocomplete?input=${encodeURIComponent(query)}`
+              );
+              if (!resp.ok) return;
+              const predictions = await resp.json();
+              renderList(predictions);
+            } catch (_) {}
+          }, 300);
+        });
+
+        function renderList(predictions) {
+          activeIndex = -1;
+          if (!predictions.length) {
+            list.style.display = "none";
+            return;
+          }
+          list.innerHTML = predictions
+            .map(
+              (p, i) =>
+                `<div class="autocomplete-item" data-index="${i}">${p.description}</div>`
+            )
+            .join("");
+          list.style.display = "block";
+
+          list.querySelectorAll(".autocomplete-item").forEach((item) => {
+            item.addEventListener("mousedown", (e) => {
+              e.preventDefault();
+              input.value = item.textContent;
+              list.style.display = "none";
+            });
+          });
+        }
+
+        input.addEventListener("keydown", (e) => {
+          const items = list.querySelectorAll(".autocomplete-item");
+          if (!items.length || list.style.display === "none") return;
+
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            activeIndex = Math.min(activeIndex + 1, items.length - 1);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            activeIndex = Math.max(activeIndex - 1, 0);
+          } else if (e.key === "Enter" && activeIndex >= 0) {
+            e.preventDefault();
+            input.value = items[activeIndex].textContent;
+            list.style.display = "none";
+            return;
+          } else if (e.key === "Escape") {
+            list.style.display = "none";
+            return;
+          } else {
+            return;
+          }
+
+          items.forEach((item) => item.classList.remove("active"));
+          items[activeIndex].classList.add("active");
+          items[activeIndex].scrollIntoView({ block: "nearest" });
+        });
+
+        input.addEventListener("blur", () => {
+          setTimeout(() => (list.style.display = "none"), 150);
+        });
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         loadTrafficData();
+        setupAutocomplete("origin-input", "origin-autocomplete");
+        setupAutocomplete("destination-input", "destination-autocomplete");
         const savedOrigin = localStorage.getItem("gwb_origin");
         const savedDest = localStorage.getItem("gwb_destination");
         if (savedOrigin)
