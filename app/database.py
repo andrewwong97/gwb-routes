@@ -46,6 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_duration_route_time
 CREATE INDEX IF NOT EXISTS idx_duration_captured
     ON duration_records(captured_at);
 
+
 """
 
 

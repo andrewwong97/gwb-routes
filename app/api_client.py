@@ -195,6 +195,14 @@ class ApiClient:
 
     def get_route_recommendation(self, origin: str, destination: str) -> RouteRecommendation:
         """Return the recommended GWB level (upper/lower) for a given origin → destination trip."""
+        # Check Redis cache first
+        try:
+            cached = self.cache.get_recommendation(origin, destination)
+            if cached:
+                return RouteRecommendation(**cached)
+        except Exception as e:
+            log.error(f"Failed to check recommendation cache: {e}")
+
         # Geocode origin to determine which side of the bridge the user is starting from
         coords = self._geocode(origin)
         if coords is None:
@@ -250,7 +258,7 @@ class ApiClient:
 
         time_saved = self._format_seconds(saved_secs) if saved_secs > 60 else "same time"
 
-        return RouteRecommendation(
+        result = RouteRecommendation(
             recommended_level=recommended,
             direction=direction,
             upper_total=upper_total,
@@ -263,6 +271,14 @@ class ApiClient:
             lower_from_bridge=lower_from_bridge,
             time_saved=time_saved,
         )
+
+        # Save to Redis cache (best-effort)
+        try:
+            self.cache.set_recommendation(origin, destination, result.model_dump())
+        except Exception as e:
+            log.error(f"Failed to cache recommendation: {e}")
+
+        return result
 
     def get_times_as_text(self):
         # NJ to NYC direction (GWB NJ-side ramps → NYC location)

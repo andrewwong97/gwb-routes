@@ -1,7 +1,10 @@
+import json
 import pytest
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, call
 from api_client import ApiClient
 from datamodels.location import Location
+from response_models import RouteRecommendation
+from routes_cache import RoutesCache
 
 
 @pytest.fixture
@@ -297,3 +300,130 @@ class TestGetRouteRecommendation:
 
         with pytest.raises(ValueError, match="Could not geocode"):
             client.get_route_recommendation("invalid", "dest")
+
+    @patch("api_client.requests.get")
+    def test_returns_cached_recommendation(self, mock_get, client):
+        """When a cached recommendation exists in Redis, skip all API calls."""
+        cached_data = {
+            "recommended_level": "upper",
+            "direction": "NJ → NYC",
+            "upper_total": "20 min",
+            "lower_total": "25 min",
+            "upper_to_bridge": "5 mins",
+            "upper_bridge": "10 mins",
+            "upper_from_bridge": "5 mins",
+            "lower_to_bridge": "7 mins",
+            "lower_bridge": "12 mins",
+            "lower_from_bridge": "6 mins",
+            "time_saved": "5 min",
+        }
+        client.cache.get_recommendation = Mock(return_value=cached_data)
+
+        result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
+        assert result == RouteRecommendation(**cached_data)
+        # No Google Maps API calls should have been made
+        mock_get.assert_not_called()
+
+    @patch("api_client.requests.get")
+    def test_saves_recommendation_after_computing(self, mock_get, client):
+        """After computing a fresh recommendation, it should be saved to Redis."""
+        client.cache.get_recommendation = Mock(return_value=None)
+        client.cache.set_recommendation = Mock(return_value=True)
+
+        call_count = [0]
+
+        def side_effect(*args, **kwargs):
+            resp = Mock()
+            if call_count[0] == 0:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{"start_location": {"lat": 40.85, "lng": -73.97}}]}]
+                }
+            else:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{
+                        "duration_in_traffic": {"text": "15 mins", "value": 900}
+                    }]}]
+                }
+            call_count[0] += 1
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
+        client.cache.set_recommendation.assert_called_once_with(
+            "Fort Lee, NJ", "Manhattan, NY", result.model_dump()
+        )
+
+    @patch("api_client.requests.get")
+    def test_cache_failure_falls_through_to_api(self, mock_get, client):
+        """If the Redis cache check raises, we still compute from API."""
+        client.cache.get_recommendation = Mock(side_effect=Exception("Redis down"))
+
+        call_count = [0]
+
+        def side_effect(*args, **kwargs):
+            resp = Mock()
+            if call_count[0] == 0:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{"start_location": {"lat": 40.85, "lng": -73.97}}]}]
+                }
+            else:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{
+                        "duration_in_traffic": {"text": "15 mins", "value": 900}
+                    }]}]
+                }
+            call_count[0] += 1
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
+        assert result.direction == "NJ → NYC"
+
+
+class TestRecommendationCacheTTL:
+    """Verify that recommendations use a shorter TTL than route durations."""
+
+    def _make_cache(self, mock_redis):
+        cache = RoutesCache.__new__(RoutesCache)
+        cache.redis = mock_redis
+        cache.cache_ttl = 180
+        cache.recommendation_ttl = 120
+        return cache
+
+    def test_recommendation_uses_shorter_ttl(self):
+        """Recommendations should cache with 120s TTL, not the 180s route TTL."""
+        mock_redis = MagicMock()
+        cache = self._make_cache(mock_redis)
+
+        cache.set_recommendation("Fort Lee, NJ", "Manhattan, NY", {"level": "upper"})
+
+        args = mock_redis.setex.call_args
+        ttl_used = args[0][1]
+        assert ttl_used == 120
+
+    def test_route_uses_standard_ttl(self):
+        """Route durations should still cache with 180s TTL."""
+        mock_redis = MagicMock()
+        cache = self._make_cache(mock_redis)
+
+        origin = Location(40.85, -73.96, "O")
+        dest = Location(40.84, -73.94, "D")
+        cache.set(origin, dest, "15 mins")
+
+        args = mock_redis.setex.call_args
+        ttl_used = args[0][1]
+        assert ttl_used == 180
+
+    def test_route_set_does_not_touch_recommendations(self):
+        """Setting a route value should not scan or delete recommend:* keys."""
+        mock_redis = MagicMock()
+        cache = self._make_cache(mock_redis)
+
+        origin = Location(40.85, -73.96, "O")
+        dest = Location(40.84, -73.94, "D")
+        cache.set(origin, dest, "15 mins")
+
+        mock_redis.keys.assert_not_called()
+        mock_redis.delete.assert_not_called()

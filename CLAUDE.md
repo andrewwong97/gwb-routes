@@ -25,6 +25,15 @@ tests/              # pytest suite (mocked external deps)
 
 **External services:** Google Maps API (required), NeonDB PostgreSQL (optional), Redis (optional), Sentry (optional). All optional services degrade gracefully.
 
+## External services detail
+
+- **Google Maps API** — Directions API for real-time traffic durations, Places API for address autocomplete. Required for core functionality.
+- **Redis (Upstash)** — In-memory cache with 180s TTL. Used for caching route durations (`route:*` keys) and route recommendation results (`recommend:*` keys, JSON-serialized). Prefer Redis for any new short-lived caching needs since it's already wired up in `routes_cache.py`.
+- **NeonDB PostgreSQL** — Persistent storage. Stores request analytics (`request_logs`), historical duration records (`duration_records`), route/location metadata (`routes`, `locations`). Use Postgres for data that needs to survive restarts or be queried historically. Hobby tier with 0.5 GB limit — be mindful of table growth.
+- **Sentry** — Error tracking and custom metrics (cache hit/miss counters). Optional.
+
+**Architectural guidance:** For caching (short TTL, repeated lookups), use Redis via `RoutesCache`. For persistent data (history, analytics, anything that needs SQL queries), use Postgres via `Database`/`HistoryStore`. Both degrade gracefully — always wrap in try/except and fall through to API calls if unavailable.
+
 ## Running tests
 
 ```bash
