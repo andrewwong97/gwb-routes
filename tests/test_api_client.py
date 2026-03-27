@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, Mock, MagicMock
 from api_client import ApiClient
 from datamodels.location import Location
+from response_models import RouteRecommendation
 
 
 @pytest.fixture
@@ -297,3 +298,83 @@ class TestGetRouteRecommendation:
 
         with pytest.raises(ValueError, match="Could not geocode"):
             client.get_route_recommendation("invalid", "dest")
+
+    @patch("api_client.requests.get")
+    def test_returns_cached_recommendation(self, mock_get, client):
+        """When a cached recommendation exists in Postgres, skip all API calls."""
+        cached_rec = RouteRecommendation(
+            recommended_level="upper",
+            direction="NJ → NYC",
+            upper_total="20 min",
+            lower_total="25 min",
+            upper_to_bridge="5 mins",
+            upper_bridge="10 mins",
+            upper_from_bridge="5 mins",
+            lower_to_bridge="7 mins",
+            lower_bridge="12 mins",
+            lower_from_bridge="6 mins",
+            time_saved="5 min",
+        )
+        client.history.get_cached_recommendation = Mock(return_value=cached_rec)
+
+        result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
+        assert result == cached_rec
+        # No Google Maps API calls should have been made
+        mock_get.assert_not_called()
+
+    @patch("api_client.requests.get")
+    def test_saves_recommendation_after_computing(self, mock_get, client):
+        """After computing a fresh recommendation, it should be saved to Postgres."""
+        client.history.get_cached_recommendation = Mock(return_value=None)
+        client.history.save_recommendation = Mock(return_value=True)
+
+        call_count = [0]
+
+        def side_effect(*args, **kwargs):
+            resp = Mock()
+            if call_count[0] == 0:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{"start_location": {"lat": 40.85, "lng": -73.97}}]}]
+                }
+            else:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{
+                        "duration_in_traffic": {"text": "15 mins", "value": 900}
+                    }]}]
+                }
+            call_count[0] += 1
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
+        client.history.save_recommendation.assert_called_once_with(
+            "Fort Lee, NJ", "Manhattan, NY", result
+        )
+
+    @patch("api_client.requests.get")
+    def test_cache_failure_falls_through_to_api(self, mock_get, client):
+        """If the DB cache check raises, we still compute from API."""
+        client.history.get_cached_recommendation = Mock(side_effect=Exception("DB down"))
+
+        call_count = [0]
+
+        def side_effect(*args, **kwargs):
+            resp = Mock()
+            if call_count[0] == 0:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{"start_location": {"lat": 40.85, "lng": -73.97}}]}]
+                }
+            else:
+                resp.json.return_value = {
+                    "routes": [{"legs": [{
+                        "duration_in_traffic": {"text": "15 mins", "value": 900}
+                    }]}]
+                }
+            call_count[0] += 1
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
+        assert result.direction == "NJ → NYC"
