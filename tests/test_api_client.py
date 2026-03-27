@@ -382,50 +382,48 @@ class TestGetRouteRecommendation:
         assert result.direction == "NJ → NYC"
 
 
-class TestRecommendationInvalidation:
-    """Verify that route cache writes invalidate cached recommendations."""
+class TestRecommendationCacheTTL:
+    """Verify that recommendations use a shorter TTL than route durations."""
 
     def _make_cache(self, mock_redis):
         cache = RoutesCache.__new__(RoutesCache)
         cache.redis = mock_redis
         cache.cache_ttl = 180
+        cache.recommendation_ttl = 120
         return cache
 
-    def test_set_route_invalidates_recommendations(self):
-        """When a route duration is cached, all recommend:* keys are cleared."""
+    def test_recommendation_uses_shorter_ttl(self):
+        """Recommendations should cache with 120s TTL, not the 180s route TTL."""
         mock_redis = MagicMock()
-        mock_redis.keys.return_value = [b"recommend:A:B", b"recommend:C:D"]
+        cache = self._make_cache(mock_redis)
+
+        cache.set_recommendation("Fort Lee, NJ", "Manhattan, NY", {"level": "upper"})
+
+        args = mock_redis.setex.call_args
+        ttl_used = args[0][1]
+        assert ttl_used == 120
+
+    def test_route_uses_standard_ttl(self):
+        """Route durations should still cache with 180s TTL."""
+        mock_redis = MagicMock()
         cache = self._make_cache(mock_redis)
 
         origin = Location(40.85, -73.96, "O")
         dest = Location(40.84, -73.94, "D")
         cache.set(origin, dest, "15 mins")
 
-        mock_redis.keys.assert_called_with("recommend:*")
-        mock_redis.delete.assert_called_once_with(b"recommend:A:B", b"recommend:C:D")
+        args = mock_redis.setex.call_args
+        ttl_used = args[0][1]
+        assert ttl_used == 180
 
-    def test_set_route_no_recommendations_to_invalidate(self):
-        """When there are no recommend:* keys, delete is not called."""
+    def test_route_set_does_not_touch_recommendations(self):
+        """Setting a route value should not scan or delete recommend:* keys."""
         mock_redis = MagicMock()
-        mock_redis.keys.return_value = []
         cache = self._make_cache(mock_redis)
 
         origin = Location(40.85, -73.96, "O")
         dest = Location(40.84, -73.94, "D")
         cache.set(origin, dest, "15 mins")
 
-        mock_redis.keys.assert_called_with("recommend:*")
+        mock_redis.keys.assert_not_called()
         mock_redis.delete.assert_not_called()
-
-    def test_invalidation_error_does_not_break_set(self):
-        """If invalidation fails, the route value is still cached."""
-        mock_redis = MagicMock()
-        mock_redis.keys.side_effect = Exception("Redis scan error")
-        cache = self._make_cache(mock_redis)
-
-        origin = Location(40.85, -73.96, "O")
-        dest = Location(40.84, -73.94, "D")
-        result = cache.set(origin, dest, "15 mins")
-
-        assert result is True
-        mock_redis.setex.assert_called_once()

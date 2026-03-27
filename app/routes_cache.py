@@ -19,6 +19,7 @@ class RoutesCache:
     def __init__(self):
         self.redis_url = os.getenv("REDIS_URL")
         self.cache_ttl = 180    # 3 minutes
+        self.recommendation_ttl = 120  # 2 minutes, shorter to limit staleness vs route data
         self.redis = None
         
         if self.redis_url:
@@ -65,11 +66,7 @@ class RoutesCache:
             return None
     
     def set(self, origin: Location, dest: Location, value: str) -> bool:
-        """Cache value for a route with TTL.
-
-        Also invalidates all cached recommendations since they embed bridge
-        crossing times that may now be stale.
-        """
+        """Cache value for a route with TTL"""
         if not self.redis:
             return False
 
@@ -79,24 +76,10 @@ class RoutesCache:
             # Set with TTL in seconds
             self.redis.setex(cache_key, self.cache_ttl, value)
             log.info(f"Cached route for {self.cache_ttl}s: {origin.get_name()} → {dest.get_name()} = {value} | Cache key: {cache_key}")
-
-            # Invalidate recommendations that depend on bridge times
-            self._invalidate_recommendations()
-
             return True
         except Exception as e:
             log.error(f"Redis setex error: {e}")
             return False
-
-    def _invalidate_recommendations(self):
-        """Clear all cached recommendations when bridge times change."""
-        try:
-            keys = self.redis.keys("recommend:*")
-            if keys:
-                deleted = self.redis.delete(*keys)
-                log.info(f"Invalidated {deleted} cached recommendation(s)")
-        except Exception as e:
-            log.error(f"Error invalidating recommendations: {e}")
     
     # For testing
     def clear_cache(self, pattern: str = "route:*") -> int:
@@ -173,7 +156,7 @@ class RoutesCache:
 
         cache_key = f"recommend:{origin}:{destination}"
         try:
-            self.redis.setex(cache_key, self.cache_ttl, json.dumps(data))
+            self.redis.setex(cache_key, self.recommendation_ttl, json.dumps(data))
             log.info(f"Cached recommendation for {self.cache_ttl}s: {origin} → {destination}")
             return True
         except Exception as e:
