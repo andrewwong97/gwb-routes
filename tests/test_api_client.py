@@ -60,7 +60,7 @@ class TestGetDuration:
     def test_returns_duration_from_api(self, mock_get, client):
         mock_resp = Mock()
         mock_resp.json.return_value = {
-            "routes": [{"legs": [{"duration_in_traffic": {"text": "18 mins"}}]}]
+            "routes": [{"legs": [{"duration_in_traffic": {"text": "18 mins", "value": 1080}}]}]
         }
         mock_get.return_value = mock_resp
 
@@ -85,7 +85,7 @@ class TestGetDuration:
         """When cache is unavailable, API is called each time (no caching)."""
         mock_resp = Mock()
         mock_resp.json.return_value = {
-            "routes": [{"legs": [{"duration_in_traffic": {"text": "10 mins"}}]}]
+            "routes": [{"legs": [{"duration_in_traffic": {"text": "10 mins", "value": 600}}]}]
         }
         mock_get.return_value = mock_resp
 
@@ -187,10 +187,13 @@ class TestGetTimesAsModel:
         call_count = [0]
         durations = ["15 mins", "18 mins", "12 mins", "14 mins"]
 
+        duration_values = [900, 1080, 720, 840]
+
         def side_effect(*args, **kwargs):
             resp = Mock()
+            idx = call_count[0] % 4
             resp.json.return_value = {
-                "routes": [{"legs": [{"duration_in_traffic": {"text": durations[call_count[0] % 4]}}]}]
+                "routes": [{"legs": [{"duration_in_traffic": {"text": durations[idx], "value": duration_values[idx]}}]}]
             }
             call_count[0] += 1
             return resp
@@ -210,10 +213,13 @@ class TestGetTimesAsText:
         call_count = [0]
         durations = ["15 mins", "18 mins", "12 mins", "14 mins"]
 
+        duration_values = [900, 1080, 720, 840]
+
         def side_effect(*args, **kwargs):
             resp = Mock()
+            idx = call_count[0] % 4
             resp.json.return_value = {
-                "routes": [{"legs": [{"duration_in_traffic": {"text": durations[call_count[0] % 4]}}]}]
+                "routes": [{"legs": [{"duration_in_traffic": {"text": durations[idx], "value": duration_values[idx]}}]}]
             }
             call_count[0] += 1
             return resp
