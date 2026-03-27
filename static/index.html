@@ -59,11 +59,25 @@
         50% { opacity: 0.3; }
       }
 
+      .hero-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .hero-logo {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+      }
+
       .hero h1 {
         font-size: 2.2rem;
         font-weight: 700;
         color: #ffffff;
-        margin-bottom: 8px;
+        margin-bottom: 0;
         letter-spacing: -0.5px;
       }
 
@@ -477,6 +491,11 @@
           font-size: 1.6rem;
         }
 
+        .hero-logo {
+          width: 36px;
+          height: 36px;
+        }
+
         .container {
           padding: 20px 16px 32px;
         }
@@ -528,7 +547,10 @@
         <span class="pulse"></span>
         Live Traffic
       </div>
-      <h1>GWB Routes</h1>
+      <div class="hero-title">
+        <img src="/static/favicon.svg" alt="GWB Routes logo" class="hero-logo" />
+        <h1>GWB Routes</h1>
+      </div>
       <p>George Washington Bridge crossing times</p>
     </div>
 
