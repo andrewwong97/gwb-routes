@@ -131,6 +131,45 @@ class TestPlacesAutocompleteEndpoint:
         assert len(data["predictions"]) == 1
 
 
+class TestBotFiltering:
+    def test_bot_user_agent_skips_analytics(self, test_client):
+        client, _ = test_client
+        with patch("index.analytics") as mock_analytics:
+            resp = client.get("/times", headers={"User-Agent": "Googlebot/2.1"})
+            assert resp.status_code == 200
+            mock_analytics.log_request.assert_not_called()
+
+    def test_real_user_agent_logs_analytics(self, test_client):
+        client, _ = test_client
+        with patch("index.analytics") as mock_analytics:
+            resp = client.get("/times", headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            })
+            assert resp.status_code == 200
+            mock_analytics.log_request.assert_called_once()
+
+    def test_empty_user_agent_skips_analytics(self, test_client):
+        client, _ = test_client
+        with patch("index.analytics") as mock_analytics:
+            resp = client.get("/times", headers={"User-Agent": ""})
+            assert resp.status_code == 200
+            mock_analytics.log_request.assert_not_called()
+
+    def test_curl_skips_analytics(self, test_client):
+        client, _ = test_client
+        with patch("index.analytics") as mock_analytics:
+            resp = client.get("/times", headers={"User-Agent": "curl/7.81.0"})
+            assert resp.status_code == 200
+            mock_analytics.log_request.assert_not_called()
+
+    def test_python_requests_skips_analytics(self, test_client):
+        client, _ = test_client
+        with patch("index.analytics") as mock_analytics:
+            resp = client.get("/times", headers={"User-Agent": "python-requests/2.28.0"})
+            assert resp.status_code == 200
+            mock_analytics.log_request.assert_not_called()
+
+
 class TestDashboard:
     def test_dashboard_root(self, test_client):
         client, _ = test_client
