@@ -5,11 +5,9 @@ from typing import Optional
 try:
     from .database import Database
     from .datamodels.location import Location
-    from .response_models import RouteRecommendation
 except ImportError:
     from database import Database
     from datamodels.location import Location
-    from response_models import RouteRecommendation
 
 log = logging.getLogger(__name__)
 
@@ -192,85 +190,6 @@ class HistoryStore:
             """
         )
         return [dict(r) for r in rows]
-
-    # -- Recommendation cache (Postgres-backed) --
-
-    RECOMMENDATION_TTL_SECONDS = 180  # 3 minutes, matches Redis TTL
-
-    def get_cached_recommendation(
-        self, origin: str, destination: str
-    ) -> Optional[RouteRecommendation]:
-        """Return a cached recommendation if one exists and hasn't expired."""
-        if not self.db.is_available():
-            return None
-
-        row = self.db.fetch_one(
-            """
-            SELECT * FROM recommendation_cache
-            WHERE origin = %s AND destination = %s
-              AND cached_at > NOW() - INTERVAL '%s seconds'
-            """,
-            (origin, destination, self.RECOMMENDATION_TTL_SECONDS),
-        )
-        if not row:
-            return None
-
-        log.info(f"Recommendation cache hit: {origin} → {destination}")
-        return RouteRecommendation(
-            recommended_level=row["recommended_level"],
-            direction=row["direction"],
-            upper_total=row["upper_total"],
-            lower_total=row["lower_total"],
-            upper_to_bridge=row["upper_to_bridge"],
-            upper_bridge=row["upper_bridge"],
-            upper_from_bridge=row["upper_from_bridge"],
-            lower_to_bridge=row["lower_to_bridge"],
-            lower_bridge=row["lower_bridge"],
-            lower_from_bridge=row["lower_from_bridge"],
-            time_saved=row["time_saved"],
-        )
-
-    def save_recommendation(
-        self, origin: str, destination: str, rec: RouteRecommendation
-    ) -> bool:
-        """Upsert a recommendation into the cache."""
-        if not self.db.is_available():
-            return False
-
-        result = self.db.execute(
-            """
-            INSERT INTO recommendation_cache
-                (origin, destination, recommended_level, direction,
-                 upper_total, lower_total,
-                 upper_to_bridge, upper_bridge, upper_from_bridge,
-                 lower_to_bridge, lower_bridge, lower_from_bridge,
-                 time_saved, cached_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-            ON CONFLICT (origin, destination) DO UPDATE SET
-                recommended_level = EXCLUDED.recommended_level,
-                direction = EXCLUDED.direction,
-                upper_total = EXCLUDED.upper_total,
-                lower_total = EXCLUDED.lower_total,
-                upper_to_bridge = EXCLUDED.upper_to_bridge,
-                upper_bridge = EXCLUDED.upper_bridge,
-                upper_from_bridge = EXCLUDED.upper_from_bridge,
-                lower_to_bridge = EXCLUDED.lower_to_bridge,
-                lower_bridge = EXCLUDED.lower_bridge,
-                lower_from_bridge = EXCLUDED.lower_from_bridge,
-                time_saved = EXCLUDED.time_saved,
-                cached_at = NOW()
-            """,
-            (
-                origin, destination, rec.recommended_level, rec.direction,
-                rec.upper_total, rec.lower_total,
-                rec.upper_to_bridge, rec.upper_bridge, rec.upper_from_bridge,
-                rec.lower_to_bridge, rec.lower_bridge, rec.lower_from_bridge,
-                rec.time_saved,
-            ),
-        )
-        if result is not None:
-            log.info(f"Cached recommendation: {origin} → {destination}")
-        return result is not None
 
     def get_daily_summary(self, route_name: str) -> list:
         """Get average duration by day of week for a route.

@@ -301,32 +301,32 @@ class TestGetRouteRecommendation:
 
     @patch("api_client.requests.get")
     def test_returns_cached_recommendation(self, mock_get, client):
-        """When a cached recommendation exists in Postgres, skip all API calls."""
-        cached_rec = RouteRecommendation(
-            recommended_level="upper",
-            direction="NJ → NYC",
-            upper_total="20 min",
-            lower_total="25 min",
-            upper_to_bridge="5 mins",
-            upper_bridge="10 mins",
-            upper_from_bridge="5 mins",
-            lower_to_bridge="7 mins",
-            lower_bridge="12 mins",
-            lower_from_bridge="6 mins",
-            time_saved="5 min",
-        )
-        client.history.get_cached_recommendation = Mock(return_value=cached_rec)
+        """When a cached recommendation exists in Redis, skip all API calls."""
+        cached_data = {
+            "recommended_level": "upper",
+            "direction": "NJ → NYC",
+            "upper_total": "20 min",
+            "lower_total": "25 min",
+            "upper_to_bridge": "5 mins",
+            "upper_bridge": "10 mins",
+            "upper_from_bridge": "5 mins",
+            "lower_to_bridge": "7 mins",
+            "lower_bridge": "12 mins",
+            "lower_from_bridge": "6 mins",
+            "time_saved": "5 min",
+        }
+        client.cache.get_recommendation = Mock(return_value=cached_data)
 
         result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
-        assert result == cached_rec
+        assert result == RouteRecommendation(**cached_data)
         # No Google Maps API calls should have been made
         mock_get.assert_not_called()
 
     @patch("api_client.requests.get")
     def test_saves_recommendation_after_computing(self, mock_get, client):
-        """After computing a fresh recommendation, it should be saved to Postgres."""
-        client.history.get_cached_recommendation = Mock(return_value=None)
-        client.history.save_recommendation = Mock(return_value=True)
+        """After computing a fresh recommendation, it should be saved to Redis."""
+        client.cache.get_recommendation = Mock(return_value=None)
+        client.cache.set_recommendation = Mock(return_value=True)
 
         call_count = [0]
 
@@ -348,14 +348,14 @@ class TestGetRouteRecommendation:
         mock_get.side_effect = side_effect
 
         result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
-        client.history.save_recommendation.assert_called_once_with(
-            "Fort Lee, NJ", "Manhattan, NY", result
+        client.cache.set_recommendation.assert_called_once_with(
+            "Fort Lee, NJ", "Manhattan, NY", result.model_dump()
         )
 
     @patch("api_client.requests.get")
     def test_cache_failure_falls_through_to_api(self, mock_get, client):
-        """If the DB cache check raises, we still compute from API."""
-        client.history.get_cached_recommendation = Mock(side_effect=Exception("DB down"))
+        """If the Redis cache check raises, we still compute from API."""
+        client.cache.get_recommendation = Mock(side_effect=Exception("Redis down"))
 
         call_count = [0]
 

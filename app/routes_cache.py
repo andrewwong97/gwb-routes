@@ -1,3 +1,4 @@
+import json
 import os
 import logging
 from redis import Redis
@@ -128,6 +129,39 @@ class RoutesCache:
             log.error(f"Error getting cache info: {e}")
             return {"error": str(e), "redis_connected": False}
     
+    def get_recommendation(self, origin: str, destination: str) -> Optional[dict]:
+        """Get a cached route recommendation by origin/destination."""
+        if not self.redis:
+            return None
+
+        cache_key = f"recommend:{origin}:{destination}"
+        try:
+            cached = self.redis.get(cache_key)
+            if cached:
+                metrics.count("redis.cache.recommendation.hit", 1)
+                log.info(f"Recommendation cache hit: {origin} → {destination}")
+                return json.loads(cached)
+            else:
+                metrics.count("redis.cache.recommendation.miss", 1)
+                return None
+        except Exception as e:
+            log.error(f"Redis recommendation get error: {e}")
+            return None
+
+    def set_recommendation(self, origin: str, destination: str, data: dict) -> bool:
+        """Cache a route recommendation with TTL."""
+        if not self.redis:
+            return False
+
+        cache_key = f"recommend:{origin}:{destination}"
+        try:
+            self.redis.setex(cache_key, self.cache_ttl, json.dumps(data))
+            log.info(f"Cached recommendation for {self.cache_ttl}s: {origin} → {destination}")
+            return True
+        except Exception as e:
+            log.error(f"Redis recommendation set error: {e}")
+            return False
+
     def is_available(self) -> bool:
         """Check if Redis cache is available"""
         return self.redis is not None

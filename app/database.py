@@ -46,29 +46,6 @@ CREATE INDEX IF NOT EXISTS idx_duration_route_time
 CREATE INDEX IF NOT EXISTS idx_duration_captured
     ON duration_records(captured_at);
 
-CREATE TABLE IF NOT EXISTS recommendation_cache (
-    id SERIAL PRIMARY KEY,
-    origin TEXT NOT NULL,
-    destination TEXT NOT NULL,
-    recommended_level VARCHAR(10) NOT NULL,
-    direction VARCHAR(20) NOT NULL,
-    upper_total TEXT NOT NULL,
-    lower_total TEXT NOT NULL,
-    upper_to_bridge TEXT NOT NULL,
-    upper_bridge TEXT NOT NULL,
-    upper_from_bridge TEXT NOT NULL,
-    lower_to_bridge TEXT NOT NULL,
-    lower_bridge TEXT NOT NULL,
-    lower_from_bridge TEXT NOT NULL,
-    time_saved TEXT NOT NULL,
-    cached_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(origin, destination)
-);
-
-CREATE INDEX IF NOT EXISTS idx_recommendation_cache_lookup
-    ON recommendation_cache(origin, destination);
-CREATE INDEX IF NOT EXISTS idx_recommendation_cache_expiry
-    ON recommendation_cache(cached_at);
 
 """
 

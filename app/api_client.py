@@ -195,11 +195,11 @@ class ApiClient:
 
     def get_route_recommendation(self, origin: str, destination: str) -> RouteRecommendation:
         """Return the recommended GWB level (upper/lower) for a given origin → destination trip."""
-        # Check Postgres cache first
+        # Check Redis cache first
         try:
-            cached = self.history.get_cached_recommendation(origin, destination)
+            cached = self.cache.get_recommendation(origin, destination)
             if cached:
-                return cached
+                return RouteRecommendation(**cached)
         except Exception as e:
             log.error(f"Failed to check recommendation cache: {e}")
 
@@ -272,11 +272,11 @@ class ApiClient:
             time_saved=time_saved,
         )
 
-        # Save to Postgres cache (best-effort)
+        # Save to Redis cache (best-effort)
         try:
-            self.history.save_recommendation(origin, destination, result)
+            self.cache.set_recommendation(origin, destination, result.model_dump())
         except Exception as e:
-            log.error(f"Failed to save recommendation cache: {e}")
+            log.error(f"Failed to cache recommendation: {e}")
 
         return result
 
