@@ -6,23 +6,36 @@ try:
     from .constants import *
     from .routes_cache import RoutesCache
     from .datamodels.location import Location
+    from .database import Database
+    from .history import HistoryStore
 except ImportError:
     from response_models import GWBRoutes, RouteRecommendation
     from constants import *
     from routes_cache import RoutesCache
     from datamodels.location import Location
+    from database import Database
+    from history import HistoryStore
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
+
+# Route name constants for the 4 core bridge crossings
+ROUTE_UPPER_NJ_TO_NYC = "upper_nj_to_nyc"
+ROUTE_LOWER_NJ_TO_NYC = "lower_nj_to_nyc"
+ROUTE_UPPER_NYC_TO_NJ = "upper_nyc_to_nj"
+ROUTE_LOWER_NYC_TO_NJ = "lower_nyc_to_nj"
+
 
 class ApiClient:
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.cache = RoutesCache()
+        self.db = Database()
+        self.history = HistoryStore(self.db)
 
-    def get_duration(self, origin: Location, dest: Location):
+    def get_duration(self, origin: Location, dest: Location, route_name: str = None):
         """ Returns the duration of the route in traffic in human-readable format """
-        
+
         # Check cache first and return early if found
         cached_duration = self.cache.get(origin, dest)
         if cached_duration:
@@ -42,11 +55,20 @@ class ApiClient:
         log.info("Made API call to Google Maps API")
         data = resp.json()
         try:
-            route_duration = data["routes"][0]["legs"][0]["duration_in_traffic"]["text"]
-            
+            leg = data["routes"][0]["legs"][0]
+            route_duration = leg["duration_in_traffic"]["text"]
+            duration_seconds = leg["duration_in_traffic"]["value"]
+
             # Cache the result
             self.cache.set(origin, dest, route_duration)
-                    
+
+            # Record to persistent history (non-blocking, best-effort)
+            if route_name:
+                try:
+                    self.history.record_duration(route_name, origin, dest, duration_seconds)
+                except Exception as e:
+                    log.error(f"Failed to record history: {e}")
+
             return route_duration
         except (KeyError, IndexError):
             return "N/A"
@@ -66,12 +88,12 @@ class ApiClient:
     def get_times_as_model(self) -> GWBRoutes:
         return GWBRoutes(
             # NJ to NYC
-            upper_level_nyc = self.get_duration(gwb_upper_nj_side, gwb_off_ramp_upper_nyc_side),
-            lower_level_nyc = self.get_duration(gwb_lower_nj_side, gwb_off_ramp_lower_nyc_side),
+            upper_level_nyc = self.get_duration(gwb_upper_nj_side, gwb_off_ramp_upper_nyc_side, ROUTE_UPPER_NJ_TO_NYC),
+            lower_level_nyc = self.get_duration(gwb_lower_nj_side, gwb_off_ramp_lower_nyc_side, ROUTE_LOWER_NJ_TO_NYC),
 
             # NYC to NJ
-            upper_level_nj = self.get_duration(gwb_upper_nyc_side, gwb_off_ramp_upper_nj_side),
-            lower_level_nj = self.get_duration(gwb_lower_nyc_side, gwb_off_ramp_lower_nj_side)
+            upper_level_nj = self.get_duration(gwb_upper_nyc_side, gwb_off_ramp_upper_nj_side, ROUTE_UPPER_NYC_TO_NJ),
+            lower_level_nj = self.get_duration(gwb_lower_nyc_side, gwb_off_ramp_lower_nj_side, ROUTE_LOWER_NYC_TO_NJ)
         )
         
     def _get_raw_duration(self, origin_str: str, dest_str: str) -> tuple:
@@ -241,12 +263,12 @@ class ApiClient:
 
     def get_times_as_text(self):
         # NJ to NYC direction (GWB NJ-side ramps → NYC location)
-        upper_time_to_nyc = self.get_duration(gwb_upper_nj_side, gwb_off_ramp_upper_nyc_side)
-        lower_time_to_nyc = self.get_duration(gwb_lower_nj_side, gwb_off_ramp_lower_nyc_side)
-        
+        upper_time_to_nyc = self.get_duration(gwb_upper_nj_side, gwb_off_ramp_upper_nyc_side, ROUTE_UPPER_NJ_TO_NYC)
+        lower_time_to_nyc = self.get_duration(gwb_lower_nj_side, gwb_off_ramp_lower_nyc_side, ROUTE_LOWER_NJ_TO_NYC)
+
         # NYC to NJ direction (GWB NYC-side ramps → NJ location)
-        upper_time_to_nj = self.get_duration(gwb_upper_nyc_side, gwb_off_ramp_upper_nj_side)
-        lower_time_to_nj = self.get_duration(gwb_lower_nyc_side, gwb_off_ramp_lower_nj_side)
+        upper_time_to_nj = self.get_duration(gwb_upper_nyc_side, gwb_off_ramp_upper_nj_side, ROUTE_UPPER_NYC_TO_NJ)
+        lower_time_to_nj = self.get_duration(gwb_lower_nyc_side, gwb_off_ramp_lower_nj_side, ROUTE_LOWER_NYC_TO_NJ)
 
         response_text = f"""
 ------------------------------------

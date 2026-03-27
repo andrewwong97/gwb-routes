@@ -1,4 +1,6 @@
+from typing import List, Optional
 from pydantic import BaseModel
+
 
 class GWBRoutes(BaseModel):
     upper_level_nyc: str
@@ -19,3 +21,53 @@ class RouteRecommendation(BaseModel):
     lower_bridge: str
     lower_from_bridge: str
     time_saved: str
+
+
+class TimeWindow(BaseModel):
+    day_of_week: int        # 0=Monday, 6=Sunday
+    hour_of_day: int        # 0-23
+    minute_bucket: int      # 0, 15, 30, 45
+    avg_seconds: int
+    median_seconds: int
+    sample_count: int
+
+
+class BestTimesResponse(BaseModel):
+    route_name: str
+    day_of_week: Optional[int] = None
+    windows: List[TimeWindow]
+
+
+class DailySummary(BaseModel):
+    day_of_week: int
+    avg_seconds: int
+    median_seconds: int
+    min_seconds: int
+    max_seconds: int
+    sample_count: int
+
+
+class DailySummaryResponse(BaseModel):
+    route_name: str
+    days: List[DailySummary]
+
+
+class TrackedRoute(BaseModel):
+    name: str
+    id: int
+    record_count: int
+    first_recorded: Optional[str] = None
+    last_recorded: Optional[str] = None
+
+
+class DurationRecord(BaseModel):
+    duration_seconds: int
+    captured_at: str
+    day_of_week: int
+    hour_of_day: int
+    minute_bucket: int
+
+
+class TimeSeriesResponse(BaseModel):
+    route_name: str
+    records: List[DurationRecord]

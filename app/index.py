@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import Optional
 
 from fastapi import FastAPI, Response, HTTPException, Query
 from fastapi.responses import PlainTextResponse, FileResponse, HTMLResponse
@@ -16,13 +17,23 @@ log = logging.getLogger(__name__)
 try:
     # Try relative imports first (works in production/package context)
     from .api_client import ApiClient
-    from .response_models import GWBRoutes, RouteRecommendation
+    from .response_models import (
+        GWBRoutes, RouteRecommendation,
+        BestTimesResponse, TimeWindow,
+        DailySummaryResponse, DailySummary,
+        TimeSeriesResponse, DurationRecord, TrackedRoute,
+    )
     log.info("Using relative imports")
 except ImportError:
     # Fall back to absolute imports (works in local development)
     log.warning("Using absolute imports")
     from api_client import ApiClient
-    from response_models import GWBRoutes, RouteRecommendation
+    from response_models import (
+        GWBRoutes, RouteRecommendation,
+        BestTimesResponse, TimeWindow,
+        DailySummaryResponse, DailySummary,
+        TimeSeriesResponse, DurationRecord, TrackedRoute,
+    )
 
 
 try:
@@ -106,6 +117,81 @@ async def dashboard(response: Response):
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return FileResponse(os.path.join("static", "favicon.png"), media_type="image/png")
+
+
+# ── History / Analytics endpoints ──────────────────────────────────────
+
+@app.get("/history/routes", response_model=list[TrackedRoute])
+async def list_tracked_routes():
+    """List all routes that have historical data."""
+    rows = api_client.history.get_routes()
+    return [
+        TrackedRoute(
+            name=r["name"],
+            id=r["id"],
+            record_count=r["record_count"],
+            first_recorded=str(r["first_recorded"]) if r["first_recorded"] else None,
+            last_recorded=str(r["last_recorded"]) if r["last_recorded"] else None,
+        )
+        for r in rows
+    ]
+
+
+@app.get("/history/{route_name}/best-times", response_model=BestTimesResponse)
+async def best_times(
+    route_name: str,
+    day_of_week: Optional[int] = Query(None, ge=0, le=6, description="0=Monday, 6=Sunday"),
+):
+    """Get the best times to travel for a route, ranked by average duration.
+
+    Returns 15-minute windows sorted from fastest to slowest.
+    Optionally filter by day of week.
+    """
+    windows = api_client.history.get_best_times(route_name, day_of_week)
+    return BestTimesResponse(
+        route_name=route_name,
+        day_of_week=day_of_week,
+        windows=[TimeWindow(**w) for w in windows],
+    )
+
+
+@app.get("/history/{route_name}/daily", response_model=DailySummaryResponse)
+async def daily_summary(route_name: str):
+    """Get average duration by day of week for a route."""
+    days = api_client.history.get_daily_summary(route_name)
+    return DailySummaryResponse(
+        route_name=route_name,
+        days=[DailySummary(**d) for d in days],
+    )
+
+
+@app.get("/history/{route_name}/series", response_model=TimeSeriesResponse)
+async def time_series(
+    route_name: str,
+    limit: int = Query(500, ge=1, le=5000, description="Max records to return"),
+):
+    """Get raw historical duration records for a route (most recent first)."""
+    records = api_client.history.get_time_series(route_name, limit)
+    return TimeSeriesResponse(
+        route_name=route_name,
+        records=[
+            DurationRecord(
+                duration_seconds=r["duration_seconds"],
+                captured_at=str(r["captured_at"]),
+                day_of_week=r["day_of_week"],
+                hour_of_day=r["hour_of_day"],
+                minute_bucket=r["minute_bucket"],
+            )
+            for r in records
+        ],
+    )
+
+
+@app.get("/history/db-health")
+async def db_health():
+    """Check database connectivity and record count."""
+    return api_client.db.health_check()
+
 
 # This is important for Vercel
 if __name__ == "__main__":
