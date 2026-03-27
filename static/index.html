@@ -807,10 +807,18 @@
               const resp = await fetch(
                 `${API_BASE}/places/autocomplete?input=${encodeURIComponent(query)}`
               );
-              if (!resp.ok) return;
-              const predictions = await resp.json();
-              renderList(predictions);
-            } catch (_) {}
+              if (!resp.ok) {
+                console.error("Autocomplete HTTP error:", resp.status);
+                return;
+              }
+              const data = await resp.json();
+              if (data.status && data.status !== "OK") {
+                console.error("Places API error:", data.status, data.error);
+              }
+              renderList(data.predictions || []);
+            } catch (err) {
+              console.error("Autocomplete fetch error:", err);
+            }
           }, 300);
         });
 

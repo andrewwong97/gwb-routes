@@ -97,26 +97,31 @@ class ApiClient:
         except (KeyError, IndexError, Exception):
             return ("N/A", float("inf"))
 
-    def places_autocomplete(self, input_text: str) -> list:
-        """Return a list of place predictions for the given input text."""
+    def places_autocomplete(self, input_text: str) -> dict:
+        """Return place predictions for the given input text."""
         url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
         params = {
             "input": input_text,
-            "types": "geocode|establishment",
             "components": "country:us",
             "key": self.api_key,
         }
         try:
             resp = requests.get(url, params=params)
             data = resp.json()
-            if data.get("status") != "OK":
-                return []
-            return [
-                {"description": p["description"], "place_id": p["place_id"]}
-                for p in data.get("predictions", [])
-            ]
-        except Exception:
-            return []
+            status = data.get("status", "UNKNOWN")
+            if status != "OK":
+                log.warning(f"Places API status: {status}, error: {data.get('error_message', 'none')}")
+                return {"predictions": [], "status": status, "error": data.get("error_message")}
+            return {
+                "predictions": [
+                    {"description": p["description"], "place_id": p["place_id"]}
+                    for p in data.get("predictions", [])
+                ],
+                "status": "OK",
+            }
+        except Exception as e:
+            log.error(f"Places autocomplete error: {e}")
+            return {"predictions": [], "status": "ERROR", "error": str(e)}
 
     def _geocode(self, address: str) -> tuple:
         """Returns (lat, lon) for an address string, or None on failure.
