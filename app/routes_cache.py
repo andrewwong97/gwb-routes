@@ -65,20 +65,38 @@ class RoutesCache:
             return None
     
     def set(self, origin: Location, dest: Location, value: str) -> bool:
-        """Cache value for a route with TTL"""
+        """Cache value for a route with TTL.
+
+        Also invalidates all cached recommendations since they embed bridge
+        crossing times that may now be stale.
+        """
         if not self.redis:
             return False
-            
+
         cache_key = self._generate_cache_key(origin, dest)
-        
+
         try:
             # Set with TTL in seconds
             self.redis.setex(cache_key, self.cache_ttl, value)
             log.info(f"Cached route for {self.cache_ttl}s: {origin.get_name()} → {dest.get_name()} = {value} | Cache key: {cache_key}")
+
+            # Invalidate recommendations that depend on bridge times
+            self._invalidate_recommendations()
+
             return True
         except Exception as e:
             log.error(f"Redis setex error: {e}")
             return False
+
+    def _invalidate_recommendations(self):
+        """Clear all cached recommendations when bridge times change."""
+        try:
+            keys = self.redis.keys("recommend:*")
+            if keys:
+                deleted = self.redis.delete(*keys)
+                log.info(f"Invalidated {deleted} cached recommendation(s)")
+        except Exception as e:
+            log.error(f"Error invalidating recommendations: {e}")
     
     # For testing
     def clear_cache(self, pattern: str = "route:*") -> int:

@@ -1,8 +1,10 @@
+import json
 import pytest
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, call
 from api_client import ApiClient
 from datamodels.location import Location
 from response_models import RouteRecommendation
+from routes_cache import RoutesCache
 
 
 @pytest.fixture
@@ -378,3 +380,52 @@ class TestGetRouteRecommendation:
 
         result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
         assert result.direction == "NJ → NYC"
+
+
+class TestRecommendationInvalidation:
+    """Verify that route cache writes invalidate cached recommendations."""
+
+    def _make_cache(self, mock_redis):
+        cache = RoutesCache.__new__(RoutesCache)
+        cache.redis = mock_redis
+        cache.cache_ttl = 180
+        return cache
+
+    def test_set_route_invalidates_recommendations(self):
+        """When a route duration is cached, all recommend:* keys are cleared."""
+        mock_redis = MagicMock()
+        mock_redis.keys.return_value = [b"recommend:A:B", b"recommend:C:D"]
+        cache = self._make_cache(mock_redis)
+
+        origin = Location(40.85, -73.96, "O")
+        dest = Location(40.84, -73.94, "D")
+        cache.set(origin, dest, "15 mins")
+
+        mock_redis.keys.assert_called_with("recommend:*")
+        mock_redis.delete.assert_called_once_with(b"recommend:A:B", b"recommend:C:D")
+
+    def test_set_route_no_recommendations_to_invalidate(self):
+        """When there are no recommend:* keys, delete is not called."""
+        mock_redis = MagicMock()
+        mock_redis.keys.return_value = []
+        cache = self._make_cache(mock_redis)
+
+        origin = Location(40.85, -73.96, "O")
+        dest = Location(40.84, -73.94, "D")
+        cache.set(origin, dest, "15 mins")
+
+        mock_redis.keys.assert_called_with("recommend:*")
+        mock_redis.delete.assert_not_called()
+
+    def test_invalidation_error_does_not_break_set(self):
+        """If invalidation fails, the route value is still cached."""
+        mock_redis = MagicMock()
+        mock_redis.keys.side_effect = Exception("Redis scan error")
+        cache = self._make_cache(mock_redis)
+
+        origin = Location(40.85, -73.96, "O")
+        dest = Location(40.84, -73.94, "D")
+        result = cache.set(origin, dest, "15 mins")
+
+        assert result is True
+        mock_redis.setex.assert_called_once()
