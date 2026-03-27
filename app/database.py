@@ -45,6 +45,26 @@ CREATE INDEX IF NOT EXISTS idx_duration_route_time
     ON duration_records(route_id, day_of_week, hour_of_day, minute_bucket);
 CREATE INDEX IF NOT EXISTS idx_duration_captured
     ON duration_records(captured_at);
+
+CREATE TABLE IF NOT EXISTS request_logs (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    method VARCHAR(10) NOT NULL,
+    path VARCHAR(512) NOT NULL,
+    query_string TEXT,
+    status_code SMALLINT,
+    duration_ms INTEGER,
+    ip_hash VARCHAR(64),
+    user_agent TEXT,
+    referer TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_request_logs_timestamp
+    ON request_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_request_logs_path
+    ON request_logs(path);
+CREATE INDEX IF NOT EXISTS idx_request_logs_path_ts
+    ON request_logs(path, timestamp);
 """
 
 

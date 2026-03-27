@@ -1,8 +1,9 @@
 import os
+import time
 import logging
 from typing import Optional
 
-from fastapi import FastAPI, Response, HTTPException, Query
+from fastapi import FastAPI, Request, Response, HTTPException, Query
 from fastapi.responses import PlainTextResponse, FileResponse, HTMLResponse
 
 from dotenv import load_dotenv
@@ -17,6 +18,7 @@ log = logging.getLogger(__name__)
 try:
     # Try relative imports first (works in production/package context)
     from .api_client import ApiClient
+    from .analytics import AnalyticsStore
     from .response_models import (
         GWBRoutes, RouteRecommendation,
         BestTimesResponse, TimeWindow,
@@ -28,6 +30,7 @@ except ImportError:
     # Fall back to absolute imports (works in local development)
     log.warning("Using absolute imports")
     from api_client import ApiClient
+    from analytics import AnalyticsStore
     from response_models import (
         GWBRoutes, RouteRecommendation,
         BestTimesResponse, TimeWindow,
@@ -53,7 +56,40 @@ api_client = ApiClient(os.getenv("GOOGLE_MAPS_API_KEY"))
 if not api_client.api_key:
     log.error("GOOGLE_MAPS_API_KEY is not set")
     raise ValueError("GOOGLE_MAPS_API_KEY is not set")
+
+analytics = AnalyticsStore(api_client.db)
 log.info("Starting server...")
+
+
+ANALYTICS_SKIP_PATHS = {"/healthcheck", "/favicon.ico", "/analytics"}
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log every request to the analytics table."""
+    # Skip logging for analytics/health endpoints to avoid feedback loops
+    if any(request.url.path.startswith(p) for p in ANALYTICS_SKIP_PATHS):
+        return await call_next(request)
+
+    start = time.monotonic()
+    response = await call_next(request)
+    duration_ms = int((time.monotonic() - start) * 1000)
+
+    try:
+        analytics.log_request(
+            method=request.method,
+            path=request.url.path,
+            query_string=str(request.url.query) if request.url.query else None,
+            status_code=response.status_code,
+            duration_ms=duration_ms,
+            ip=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            referer=request.headers.get("referer"),
+        )
+    except Exception as e:
+        log.warning(f"Failed to log analytics: {e}")
+
+    return response
 
 @app.get("/plaintext")
 async def plaintext():
@@ -191,6 +227,45 @@ async def time_series(
 async def db_health():
     """Check database connectivity and record count."""
     return api_client.db.health_check()
+
+
+# ── User Analytics endpoints ─────────────────────────────────────────
+
+@app.get("/analytics/endpoints")
+async def analytics_endpoints(
+    hours: int = Query(24, ge=1, le=720, description="Lookback window in hours"),
+):
+    """Request count, avg latency, and error count per endpoint."""
+    return analytics.get_endpoint_stats(hours)
+
+
+@app.get("/analytics/traffic")
+async def analytics_traffic(
+    hours: int = Query(24, ge=1, le=720, description="Lookback window in hours"),
+    bucket_minutes: int = Query(60, ge=1, le=1440, description="Bucket size in minutes"),
+):
+    """Request counts bucketed over time."""
+    return analytics.get_requests_over_time(hours, bucket_minutes)
+
+
+@app.get("/analytics/visitors")
+async def analytics_visitors(
+    hours: int = Query(24, ge=1, le=720, description="Lookback window in hours"),
+):
+    """Unique visitor and total request counts."""
+    return analytics.get_unique_visitors(hours)
+
+
+@app.get("/analytics/recent")
+async def analytics_recent(
+    limit: int = Query(50, ge=1, le=500, description="Number of recent requests"),
+):
+    """Live tail of the most recent requests."""
+    rows = analytics.get_recent_requests(limit)
+    for r in rows:
+        if r.get("timestamp"):
+            r["timestamp"] = str(r["timestamp"])
+    return rows
 
 
 # This is important for Vercel
