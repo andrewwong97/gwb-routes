@@ -527,7 +527,7 @@
       }
 
       .insights-select {
-        background: rgba(255, 255, 255, 0.04);
+        background: #1c1f26;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         padding: 8px 12px;
@@ -536,10 +536,22 @@
         font-size: 0.85rem;
         outline: none;
         cursor: pointer;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237d8590' viewBox='0 0 16 16'%3E%3Cpath d='M4.427 5.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 5H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
       }
 
       .insights-select:focus {
         border-color: rgba(56, 97, 251, 0.5);
+      }
+
+      .insights-select option {
+        background: #1c1f26;
+        color: #e1e4e8;
       }
 
       .insights-grid {
