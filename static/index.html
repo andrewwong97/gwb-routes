@@ -473,60 +473,30 @@
         text-align: center;
       }
 
-      /* Insights */
-      .insights-section {
+      /* Best Time to Go */
+      .best-time-section {
         margin-top: 32px;
-      }
-
-      .insights-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 16px;
-        padding: 20px 28px;
-        cursor: pointer;
-        color: #e1e4e8;
-        font-family: inherit;
+        padding: 28px;
+      }
+
+      .best-time-section h2 {
         font-size: 1.1rem;
+        color: #e1e4e8;
+        margin-bottom: 20px;
         font-weight: 600;
-        transition: background 0.2s, border-color 0.2s;
       }
 
-      .insights-toggle:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
-      }
-
-      .insights-toggle .arrow {
-        transition: transform 0.3s ease;
-        color: #7d8590;
-        font-size: 0.9rem;
-      }
-
-      .insights-toggle.open .arrow {
-        transform: rotate(180deg);
-      }
-
-      .insights-body {
-        display: none;
-        margin-top: 16px;
-      }
-
-      .insights-body.open {
-        display: block;
-      }
-
-      .insights-controls {
+      .best-time-controls {
         display: flex;
         gap: 10px;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         flex-wrap: wrap;
       }
 
-      .insights-select {
+      .best-time-select {
         background: #1c1f26;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px;
@@ -545,235 +515,153 @@
         padding-right: 30px;
       }
 
-      .insights-select:focus {
+      .best-time-select:focus {
         border-color: rgba(56, 97, 251, 0.5);
       }
 
-      .insights-select option {
+      .best-time-select option {
         background: #1c1f26;
         color: #e1e4e8;
       }
 
-      .insights-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 20px;
-      }
-
-      .insight-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 14px;
-        padding: 22px;
-      }
-
-      .insight-card h3 {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        color: #7d8590;
-        margin-bottom: 14px;
-      }
-
-      .insight-stat {
+      /* Best time callout */
+      .best-time-callout {
+        background: rgba(74, 222, 128, 0.08);
+        border: 1px solid rgba(74, 222, 128, 0.2);
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 24px;
         display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        padding: 6px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        align-items: center;
+        gap: 16px;
       }
 
-      .insight-stat:last-child {
-        border-bottom: none;
+      .best-time-callout-icon {
+        font-size: 1.8rem;
+        line-height: 1;
+        flex-shrink: 0;
       }
 
-      .insight-stat-label {
+      .best-time-callout-text {
+        flex: 1;
+      }
+
+      .best-time-callout-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #4ade80;
+        margin-bottom: 2px;
+      }
+
+      .best-time-callout-detail {
         font-size: 0.85rem;
         color: #7d8590;
       }
 
-      .insight-stat-value {
-        font-size: 1.1rem;
+      /* Day pills */
+      .day-pills {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .day-pill {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: transparent;
+        color: #7d8590;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s ease;
+      }
+
+      .day-pill:hover {
+        border-color: rgba(56, 97, 251, 0.4);
+        color: #7b9cff;
+      }
+
+      .day-pill.active {
+        background: rgba(56, 97, 251, 0.15);
+        border-color: rgba(56, 97, 251, 0.4);
+        color: #7b9cff;
         font-weight: 600;
-        color: #e1e4e8;
+      }
+
+      /* Time bar chart */
+      .time-chart {
+        position: relative;
+      }
+
+      .time-chart-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 0;
+      }
+
+      .time-chart-label {
+        width: 52px;
+        font-size: 0.8rem;
+        color: #7d8590;
+        text-align: right;
+        flex-shrink: 0;
         font-variant-numeric: tabular-nums;
       }
 
-      .insight-stat-value.good { color: #4ade80; }
-      .insight-stat-value.warn { color: #fbbf24; }
-      .insight-stat-value.bad { color: #f87171; }
-
-      .trend-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 12px;
-      }
-
-      .trend-badge.up {
-        background: rgba(248, 113, 113, 0.12);
-        color: #f87171;
-      }
-
-      .trend-badge.down {
-        background: rgba(74, 222, 128, 0.12);
-        color: #4ade80;
-      }
-
-      .trend-badge.flat {
-        background: rgba(251, 191, 36, 0.12);
-        color: #fbbf24;
-      }
-
-      /* Hourly chart */
-      .hourly-chart {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 14px;
-        padding: 22px;
-        margin-bottom: 16px;
-      }
-
-      .hourly-chart h3 {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        color: #7d8590;
-        margin-bottom: 16px;
-      }
-
-      .bar-chart {
-        display: flex;
-        align-items: flex-end;
-        gap: 2px;
-        height: 120px;
-        padding-top: 8px;
-      }
-
-      .bar-col {
+      .time-chart-bar-bg {
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 100%;
-        justify-content: flex-end;
-      }
-
-      .bar {
-        width: 100%;
-        min-height: 2px;
-        border-radius: 3px 3px 0 0;
-        transition: height 0.4s ease;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+        overflow: hidden;
         position: relative;
       }
 
-      .bar:hover {
-        opacity: 0.85;
-      }
-
-      .bar-label {
-        font-size: 0.55rem;
-        color: #484f58;
-        margin-top: 4px;
-        text-align: center;
-      }
-
-      .bar-tooltip {
-        display: none;
-        position: absolute;
-        bottom: calc(100% + 6px);
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1c1f26;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        padding: 4px 8px;
+      .time-chart-bar {
+        height: 100%;
         border-radius: 6px;
-        font-size: 0.7rem;
-        color: #e1e4e8;
-        white-space: nowrap;
-        z-index: 10;
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        min-width: 0;
+        position: relative;
       }
 
-      .bar:hover .bar-tooltip {
-        display: block;
+      .time-chart-bar.best-bar {
+        box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
       }
 
-      /* Heatmap */
-      .heatmap-container {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 14px;
-        padding: 22px;
-        margin-bottom: 16px;
-        overflow-x: auto;
-      }
-
-      .heatmap-container h3 {
+      .time-chart-value {
         font-size: 0.75rem;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        color: #7d8590;
-        margin-bottom: 16px;
+        color: #fff;
+        white-space: nowrap;
+        position: absolute;
+        right: 8px;
       }
 
-      .heatmap-grid {
-        display: grid;
-        grid-template-columns: 40px repeat(24, 1fr);
-        gap: 2px;
-        min-width: 500px;
-      }
-
-      .heatmap-cell {
-        aspect-ratio: 1;
-        border-radius: 3px;
-        min-width: 14px;
-        min-height: 14px;
+      .time-chart-value.outside {
         position: relative;
-        cursor: default;
-      }
-
-      .heatmap-cell:hover {
-        outline: 1px solid rgba(255, 255, 255, 0.3);
-        z-index: 1;
-      }
-
-      .heatmap-row-label {
-        font-size: 0.6rem;
+        right: auto;
+        margin-left: 8px;
         color: #7d8590;
-        display: flex;
-        align-items: center;
-        padding-right: 4px;
       }
 
-      .heatmap-col-label {
-        font-size: 0.55rem;
-        color: #484f58;
-        text-align: center;
-      }
-
-      .heatmap-legend {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-top: 10px;
+      .time-chart-best-badge {
         font-size: 0.65rem;
-        color: #484f58;
+        font-weight: 600;
+        color: #4ade80;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-left: 8px;
       }
 
-      .heatmap-legend-swatch {
-        width: 14px;
-        height: 14px;
-        border-radius: 2px;
-      }
-
-      .insights-empty {
+      .time-chart-empty {
         text-align: center;
         padding: 40px 20px;
         color: #484f58;
@@ -781,14 +669,27 @@
       }
 
       @media (max-width: 640px) {
-        .insights-grid {
-          grid-template-columns: 1fr;
-        }
-        .insights-controls {
+        .best-time-controls {
           flex-direction: column;
         }
-        .bar-label {
-          font-size: 0.45rem;
+        .day-pills {
+          gap: 4px;
+        }
+        .day-pill {
+          padding: 5px 10px;
+          font-size: 0.75rem;
+        }
+        .time-chart-label {
+          width: 42px;
+          font-size: 0.7rem;
+        }
+        .time-chart-bar-bg {
+          height: 24px;
+        }
+        .best-time-callout {
+          flex-direction: column;
+          text-align: center;
+          gap: 8px;
         }
       }
 
@@ -988,48 +889,22 @@
             again.
           </div>
         </div>
-        <!-- Historical Insights -->
-        <div class="insights-section">
-          <button class="insights-toggle" id="insights-toggle" onclick="toggleInsights()">
-            Historical Insights
-            <span class="arrow">&#9660;</span>
-          </button>
-          <div class="insights-body" id="insights-body">
-            <div class="insights-controls">
-              <select class="insights-select" id="insights-route" onchange="loadInsights()">
-                <option value="">Select a route...</option>
-              </select>
-              <select class="insights-select" id="insights-day-filter" onchange="loadHourlyProfile()">
-                <option value="all">All days</option>
-                <option value="weekday">Weekdays only</option>
-                <option value="weekend">Weekends only</option>
-              </select>
-            </div>
-
-            <div id="insights-content" style="display:none">
-              <!-- Peak vs Off-Peak + Trend -->
-              <div class="insights-grid" id="insights-summary"></div>
-
-              <!-- Route Comparison -->
-              <div class="insights-grid" id="insights-comparison"></div>
-
-              <!-- Hourly bar chart -->
-              <div class="hourly-chart" id="hourly-chart-container">
-                <h3>Average Duration by Hour</h3>
-                <div class="bar-chart" id="hourly-bars"></div>
-              </div>
-
-              <!-- Heatmap -->
-              <div class="heatmap-container" id="heatmap-container">
-                <h3>Duration Heatmap (Day &times; Hour)</h3>
-                <div class="heatmap-grid" id="heatmap-grid"></div>
-                <div class="heatmap-legend" id="heatmap-legend"></div>
-              </div>
-            </div>
-
-            <div id="insights-empty" class="insights-empty">
-              Select a route above to view historical insights.
-            </div>
+        <!-- Best Time to Go -->
+        <div class="best-time-section">
+          <h2>Best Time to Cross</h2>
+          <div class="best-time-controls">
+            <select class="best-time-select" id="best-time-route" onchange="loadBestTimes()">
+              <option value="">Choose a route...</option>
+              <option value="upper_nj_to_nyc">Upper Level &mdash; NJ to NYC</option>
+              <option value="lower_nj_to_nyc">Lower Level &mdash; NJ to NYC</option>
+              <option value="upper_nyc_to_nj">Upper Level &mdash; NYC to NJ</option>
+              <option value="lower_nyc_to_nj">Lower Level &mdash; NYC to NJ</option>
+            </select>
+          </div>
+          <div class="day-pills" id="day-pills"></div>
+          <div id="best-time-callout"></div>
+          <div class="time-chart" id="time-chart">
+            <div class="time-chart-empty">Choose a route above to see the best times to cross.</div>
           </div>
         </div>
       </div>
@@ -1262,318 +1137,138 @@
         });
       }
 
-      // ── Insights ──────────────────────────────────────────────────
+      // ── Best Time to Cross ─────────────────────────────────────────
 
-      const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      const DAY_LABELS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-      function fmtDuration(seconds) {
-        if (!seconds && seconds !== 0) return "N/A";
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        return m > 0 ? `${m}m ${s}s` : `${s}s`;
+      // GWB peak toll hours for NJ→NYC (Port Authority peak pricing)
+      // Weekday peak: 6-10 AM and 4-8 PM; Weekend peak: 11 AM-9 PM
+      function isPeakToll(hour, dayOfWeek) {
+        if (dayOfWeek >= 5) {
+          // weekend
+          return hour >= 11 && hour <= 20;
+        }
+        // weekday
+        return (hour >= 6 && hour <= 9) || (hour >= 16 && hour <= 19);
+      }
+
+      function fmtHour(h) {
+        if (h === 0) return "12 AM";
+        if (h === 12) return "12 PM";
+        return h < 12 ? `${h} AM` : `${h - 12} PM`;
       }
 
       function fmtMins(seconds) {
         if (!seconds && seconds !== 0) return "N/A";
-        return `${(seconds / 60).toFixed(1)} min`;
-      }
-
-      function durationColor(seconds) {
         const mins = seconds / 60;
-        if (mins <= 5) return "good";
-        if (mins <= 9) return "warn";
-        return "bad";
+        if (mins < 1) return "< 1 min";
+        return `${Math.round(mins)} min`;
       }
 
-      function toggleInsights() {
-        const toggle = document.getElementById("insights-toggle");
-        const body = document.getElementById("insights-body");
-        toggle.classList.toggle("open");
-        body.classList.toggle("open");
-        if (body.classList.contains("open") && !document.getElementById("insights-route").options.length > 1) {
-          loadInsightRoutes();
+      function barColor(seconds, minSec, maxSec) {
+        if (maxSec === minSec) return "#4ade80";
+        const t = (seconds - minSec) / (maxSec - minSec);
+        if (t <= 0.33) return "#4ade80";
+        if (t <= 0.66) return "#fbbf24";
+        return "#f87171";
+      }
+
+      let selectedDay = null; // null = all days
+
+      function renderDayPills() {
+        const container = document.getElementById("day-pills");
+        let html = `<button class="day-pill ${selectedDay === null ? 'active' : ''}" onclick="selectDay(null)">All Days</button>`;
+        for (let d = 0; d < 7; d++) {
+          html += `<button class="day-pill ${selectedDay === d ? 'active' : ''}" onclick="selectDay(${d})">${DAY_SHORT[d]}</button>`;
         }
+        container.innerHTML = html;
       }
 
-      async function loadInsightRoutes() {
-        try {
-          const resp = await fetch(`${API_BASE}/history/routes`);
-          if (!resp.ok) return;
-          const routes = await resp.json();
-          const sel = document.getElementById("insights-route");
-          // keep the placeholder
-          while (sel.options.length > 1) sel.remove(1);
-          routes.forEach(r => {
-            if (r.record_count > 0) {
-              const opt = document.createElement("option");
-              opt.value = r.name;
-              opt.textContent = r.name.replace(/_/g, " ");
-              sel.appendChild(opt);
-            }
-          });
-        } catch (e) {
-          console.error("Failed to load insight routes:", e);
-        }
+      function selectDay(d) {
+        selectedDay = d;
+        renderDayPills();
+        loadBestTimes();
       }
 
-      async function loadInsights() {
-        const route = document.getElementById("insights-route").value;
-        const content = document.getElementById("insights-content");
-        const empty = document.getElementById("insights-empty");
+      async function loadBestTimes() {
+        const route = document.getElementById("best-time-route").value;
+        const chart = document.getElementById("time-chart");
+        const callout = document.getElementById("best-time-callout");
+        const pills = document.getElementById("day-pills");
+
         if (!route) {
-          content.style.display = "none";
-          empty.style.display = "block";
+          chart.innerHTML = `<div class="time-chart-empty">Choose a route above to see the best times to cross.</div>`;
+          callout.innerHTML = "";
+          pills.innerHTML = "";
           return;
         }
-        content.style.display = "block";
-        empty.style.display = "none";
-        // load all insight data in parallel
-        await Promise.all([
-          loadPeakAndTrend(route),
-          loadRouteComparison(route),
-          loadHourlyProfile(),
-          loadHeatmap(route),
-        ]);
-      }
 
-      async function loadPeakAndTrend(route) {
-        const container = document.getElementById("insights-summary");
-        container.innerHTML = "";
-        try {
-          const [peakResp, trendResp] = await Promise.all([
-            fetch(`${API_BASE}/history/${encodeURIComponent(route)}/peak`),
-            fetch(`${API_BASE}/history/${encodeURIComponent(route)}/trend`),
-          ]);
-          const peak = await peakResp.json();
-          const trend = await trendResp.json();
+        renderDayPills();
 
-          // Peak card
-          let peakHtml = `<div class="insight-card"><h3>Peak vs Off-Peak</h3>`;
-          if (peak.peak) {
-            peakHtml += `
-              <div class="insight-stat">
-                <span class="insight-stat-label">Rush Hour (7-9a, 5-7p)</span>
-                <span class="insight-stat-value ${durationColor(peak.peak.avg_seconds)}">${fmtMins(peak.peak.avg_seconds)}</span>
-              </div>`;
-          }
-          if (peak.off_peak) {
-            peakHtml += `
-              <div class="insight-stat">
-                <span class="insight-stat-label">Off-Peak</span>
-                <span class="insight-stat-value ${durationColor(peak.off_peak.avg_seconds)}">${fmtMins(peak.off_peak.avg_seconds)}</span>
-              </div>`;
-          }
-          if (peak.peak && peak.off_peak) {
-            const diff = peak.peak.avg_seconds - peak.off_peak.avg_seconds;
-            const pct = ((diff / peak.off_peak.avg_seconds) * 100).toFixed(0);
-            peakHtml += `
-              <div class="insight-stat">
-                <span class="insight-stat-label">Rush Hour Premium</span>
-                <span class="insight-stat-value ${diff > 0 ? 'bad' : 'good'}">${diff > 0 ? '+' : ''}${pct}%</span>
-              </div>`;
-          }
-          if (!peak.peak && !peak.off_peak) {
-            peakHtml += `<div class="insight-stat"><span class="insight-stat-label">No data yet</span></div>`;
-          }
-          peakHtml += `</div>`;
-
-          // Trend card
-          let trendHtml = `<div class="insight-card"><h3>7-Day Trend</h3>`;
-          if (trend.recent) {
-            trendHtml += `
-              <div class="insight-stat">
-                <span class="insight-stat-label">Last ${trend.recent_days} days avg</span>
-                <span class="insight-stat-value">${fmtMins(trend.recent.avg_seconds)}</span>
-              </div>`;
-          }
-          if (trend.baseline) {
-            trendHtml += `
-              <div class="insight-stat">
-                <span class="insight-stat-label">Prior ${trend.baseline_days} days avg</span>
-                <span class="insight-stat-value">${fmtMins(trend.baseline.avg_seconds)}</span>
-              </div>`;
-          }
-          if (trend.change_pct !== null && trend.change_pct !== undefined) {
-            const cls = trend.change_pct > 2 ? "up" : trend.change_pct < -2 ? "down" : "flat";
-            const arrow = cls === "up" ? "&#9650;" : cls === "down" ? "&#9660;" : "&#8212;";
-            trendHtml += `
-              <div class="insight-stat">
-                <span class="insight-stat-label">Change</span>
-                <span class="trend-badge ${cls}">${arrow} ${Math.abs(trend.change_pct).toFixed(1)}%</span>
-              </div>`;
-          }
-          if (!trend.recent && !trend.baseline) {
-            trendHtml += `<div class="insight-stat"><span class="insight-stat-label">No data yet</span></div>`;
-          }
-          trendHtml += `</div>`;
-
-          container.innerHTML = peakHtml + trendHtml;
-        } catch (e) {
-          console.error("Failed to load peak/trend:", e);
-          container.innerHTML = "";
-        }
-      }
-
-      async function loadRouteComparison(route) {
-        const container = document.getElementById("insights-comparison");
-        container.innerHTML = "";
-        // derive direction from route name
-        let direction = null;
-        if (route.includes("nj_to_nyc")) direction = "nj_to_nyc";
-        else if (route.includes("nyc_to_nj")) direction = "nyc_to_nj";
-        if (!direction) return;
+        const isNjToNyc = route.includes("nj_to_nyc");
+        const dayParam = selectedDay !== null ? `&day_of_week=${selectedDay}` : "";
 
         try {
-          const resp = await fetch(`${API_BASE}/history/compare/${direction}`);
+          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/hourly?filter=${selectedDay === null ? 'all' : (selectedDay < 5 ? 'weekday' : 'weekend')}`);
           const data = await resp.json();
-          if (!data.routes || data.routes.length < 2) return;
 
-          const dirLabel = direction === "nj_to_nyc" ? "NJ \u2192 NYC" : "NYC \u2192 NJ";
-          let html = `<div class="insight-card" style="grid-column: 1 / -1"><h3>Level Comparison \u2014 ${dirLabel}</h3>`;
-          data.routes.forEach(r => {
-            const label = r.route_name.includes("upper") ? "Upper Level" : "Lower Level";
-            html += `
-              <div class="insight-stat">
-                <span class="insight-stat-label">${label}</span>
-                <span class="insight-stat-value ${durationColor(r.avg_seconds)}">${fmtMins(r.avg_seconds)}</span>
+          // If a specific day is selected, use best-times endpoint for that day
+          let hours = data.hours || [];
+
+          if (!hours.length) {
+            chart.innerHTML = `<div class="time-chart-empty">No historical data yet for this route. Data builds up as the bridge is monitored.</div>`;
+            callout.innerHTML = "";
+            return;
+          }
+
+          // Sort by hour for display
+          hours.sort((a, b) => a.hour_of_day - b.hour_of_day);
+
+          const avgValues = hours.map(h => h.avg_seconds);
+          const minSec = Math.min(...avgValues);
+          const maxSec = Math.max(...avgValues);
+          const bestHour = hours.reduce((best, h) => h.avg_seconds < best.avg_seconds ? h : best, hours[0]);
+
+          // Callout: best time
+          const dayLabel = selectedDay !== null ? DAY_LABELS[selectedDay] + "s" : "all days";
+          callout.innerHTML = `
+            <div class="best-time-callout">
+              <div class="best-time-callout-icon">&#9203;</div>
+              <div class="best-time-callout-text">
+                <div class="best-time-callout-title">Best time: ${fmtHour(bestHour.hour_of_day)}</div>
+                <div class="best-time-callout-detail">Average crossing time of ${fmtMins(bestHour.avg_seconds)} on ${dayLabel}${isNjToNyc ? ` &middot; ${isPeakToll(bestHour.hour_of_day, selectedDay !== null ? selectedDay : 2) ? "Peak toll" : "Off-peak toll"}` : ""}</div>
               </div>
-              <div class="insight-stat" style="padding-left:16px">
-                <span class="insight-stat-label">Range</span>
-                <span class="insight-stat-value" style="font-size:0.85rem">${fmtMins(r.min_seconds)} \u2013 ${fmtMins(r.max_seconds)}</span>
-              </div>`;
-          });
-          // show which is faster
-          const faster = data.routes[0];
-          const slower = data.routes[1];
-          const saved = slower.avg_seconds - faster.avg_seconds;
-          if (saved > 0) {
-            const fasterLabel = faster.route_name.includes("upper") ? "Upper" : "Lower";
-            html += `<div class="insight-stat">
-              <span class="insight-stat-label">Avg savings</span>
-              <span class="insight-stat-value good">${fasterLabel} saves ${fmtMins(saved)}</span>
             </div>`;
-          }
-          html += `</div>`;
-          container.innerHTML = html;
-        } catch (e) {
-          console.error("Failed to load comparison:", e);
-        }
-      }
 
-      async function loadHourlyProfile() {
-        const route = document.getElementById("insights-route").value;
-        const filter = document.getElementById("insights-day-filter").value;
-        const barsEl = document.getElementById("hourly-bars");
-        if (!route) return;
+          // Bar chart rows
+          let chartHtml = "";
+          for (const h of hours) {
+            const pct = maxSec > 0 ? Math.max(8, (h.avg_seconds / maxSec) * 100) : 50;
+            const color = barColor(h.avg_seconds, minSec, maxSec);
+            const isBest = h.hour_of_day === bestHour.hour_of_day;
+            const narrow = pct < 30;
+            const peakLabel = isNjToNyc && isPeakToll(h.hour_of_day, selectedDay !== null ? selectedDay : 2)
+              ? `<span style="font-size:0.6rem;color:#fbbf24;margin-left:6px;font-weight:500">PEAK TOLL</span>` : "";
 
-        try {
-          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/hourly?filter=${filter}`);
-          const data = await resp.json();
-          if (!data.hours || !data.hours.length) {
-            barsEl.innerHTML = `<span style="color:#484f58;font-size:0.85rem;margin:auto">No data</span>`;
-            return;
-          }
-
-          // fill all 24 hours (some may be missing)
-          const byHour = {};
-          data.hours.forEach(h => byHour[h.hour_of_day] = h);
-          const maxVal = Math.max(...data.hours.map(h => h.avg_seconds));
-
-          let html = "";
-          for (let h = 0; h < 24; h++) {
-            const d = byHour[h];
-            if (d) {
-              const pct = (d.avg_seconds / maxVal * 100).toFixed(0);
-              const mins = d.avg_seconds / 60;
-              const color = mins <= 5 ? "#4ade80" : mins <= 9 ? "#fbbf24" : "#f87171";
-              html += `<div class="bar-col">
-                <div class="bar" style="height:${pct}%;background:${color}">
-                  <div class="bar-tooltip">${h}:00 &mdash; ${fmtMins(d.avg_seconds)} (${d.sample_count} samples)</div>
+            chartHtml += `
+              <div class="time-chart-row">
+                <div class="time-chart-label">${fmtHour(h.hour_of_day)}</div>
+                <div class="time-chart-bar-bg">
+                  <div class="time-chart-bar ${isBest ? 'best-bar' : ''}" style="width:${pct}%;background:${color}">
+                    ${!narrow ? `<span class="time-chart-value">${fmtMins(h.avg_seconds)}</span>` : ""}
+                  </div>
+                  ${narrow ? `<span class="time-chart-value outside">${fmtMins(h.avg_seconds)}</span>` : ""}
+                  ${isBest ? `<span class="time-chart-best-badge">BEST</span>` : ""}
+                  ${peakLabel}
                 </div>
-                <div class="bar-label">${h}</div>
               </div>`;
-            } else {
-              html += `<div class="bar-col">
-                <div class="bar" style="height:2px;background:rgba(255,255,255,0.05)"></div>
-                <div class="bar-label">${h}</div>
-              </div>`;
-            }
           }
-          barsEl.innerHTML = html;
+          chart.innerHTML = chartHtml;
         } catch (e) {
-          console.error("Failed to load hourly profile:", e);
-        }
-      }
-
-      async function loadHeatmap(route) {
-        const grid = document.getElementById("heatmap-grid");
-        const legend = document.getElementById("heatmap-legend");
-        if (!route) return;
-
-        try {
-          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/heatmap`);
-          const data = await resp.json();
-          if (!data.cells || !data.cells.length) {
-            grid.innerHTML = `<span style="color:#484f58;font-size:0.85rem">No data</span>`;
-            legend.innerHTML = "";
-            return;
-          }
-
-          const lookup = {};
-          let minVal = Infinity, maxVal = 0;
-          data.cells.forEach(c => {
-            lookup[`${c.day_of_week}-${c.hour_of_day}`] = c;
-            if (c.avg_seconds < minVal) minVal = c.avg_seconds;
-            if (c.avg_seconds > maxVal) maxVal = c.avg_seconds;
-          });
-
-          function heatColor(val) {
-            if (val === null) return "rgba(255,255,255,0.02)";
-            const t = maxVal === minVal ? 0.5 : (val - minVal) / (maxVal - minVal);
-            // green -> yellow -> red
-            if (t <= 0.5) {
-              const r = Math.round(74 + (251 - 74) * (t * 2));
-              const g = Math.round(222 - (222 - 191) * (t * 2));
-              const b = Math.round(128 - (128 - 36) * (t * 2));
-              return `rgba(${r},${g},${b},0.7)`;
-            } else {
-              const t2 = (t - 0.5) * 2;
-              const r = Math.round(251 - (251 - 248) * t2);
-              const g = Math.round(191 - (191 - 113) * t2);
-              const b = Math.round(36 + (113 - 36) * t2);
-              return `rgba(${r},${g},${b},0.7)`;
-            }
-          }
-
-          // header row
-          let html = `<div></div>`;
-          for (let h = 0; h < 24; h++) {
-            html += `<div class="heatmap-col-label">${h}</div>`;
-          }
-          // data rows
-          for (let d = 0; d < 7; d++) {
-            html += `<div class="heatmap-row-label">${DAY_NAMES[d]}</div>`;
-            for (let h = 0; h < 24; h++) {
-              const cell = lookup[`${d}-${h}`];
-              const bg = heatColor(cell ? cell.avg_seconds : null);
-              const title = cell ? `${DAY_NAMES[d]} ${h}:00 — ${fmtMins(cell.avg_seconds)} (${cell.sample_count})` : `${DAY_NAMES[d]} ${h}:00 — no data`;
-              html += `<div class="heatmap-cell" style="background:${bg}" title="${title}"></div>`;
-            }
-          }
-          grid.innerHTML = html;
-
-          // legend
-          legend.innerHTML = `
-            <span>Faster</span>
-            <div class="heatmap-legend-swatch" style="background:rgba(74,222,128,0.7)"></div>
-            <div class="heatmap-legend-swatch" style="background:rgba(163,207,82,0.7)"></div>
-            <div class="heatmap-legend-swatch" style="background:rgba(251,191,36,0.7)"></div>
-            <div class="heatmap-legend-swatch" style="background:rgba(250,152,75,0.7)"></div>
-            <div class="heatmap-legend-swatch" style="background:rgba(248,113,113,0.7)"></div>
-            <span>Slower</span>
-          `;
-        } catch (e) {
-          console.error("Failed to load heatmap:", e);
+          console.error("Failed to load best times:", e);
+          chart.innerHTML = `<div class="time-chart-empty">Unable to load data. Try again later.</div>`;
+          callout.innerHTML = "";
         }
       }
 
@@ -1588,7 +1283,6 @@
         if (savedDest)
           document.getElementById("destination-input").value = savedDest;
         if (savedOrigin && savedDest) findBestRoute();
-        loadInsightRoutes();
       });
 
       // Auto-refresh every 3 minutes
