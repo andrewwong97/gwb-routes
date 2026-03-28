@@ -473,6 +473,237 @@
         text-align: center;
       }
 
+      /* Best Time to Go */
+      .best-time-section {
+        margin-top: 32px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 28px;
+      }
+
+      .best-time-section h2 {
+        font-size: 1.1rem;
+        color: #e1e4e8;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .best-time-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+
+      .best-time-select {
+        background: #1c1f26;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: #e1e4e8;
+        font-family: inherit;
+        font-size: 0.85rem;
+        outline: none;
+        cursor: pointer;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237d8590' viewBox='0 0 16 16'%3E%3Cpath d='M4.427 5.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 5H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
+      }
+
+      .best-time-select:focus {
+        border-color: rgba(56, 97, 251, 0.5);
+      }
+
+      .best-time-select option {
+        background: #1c1f26;
+        color: #e1e4e8;
+      }
+
+      /* Best time callout */
+      .best-time-callout {
+        background: rgba(74, 222, 128, 0.08);
+        border: 1px solid rgba(74, 222, 128, 0.2);
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .best-time-callout-icon {
+        font-size: 1.8rem;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+
+      .best-time-callout-text {
+        flex: 1;
+      }
+
+      .best-time-callout-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #4ade80;
+        margin-bottom: 2px;
+      }
+
+      .best-time-callout-detail {
+        font-size: 0.85rem;
+        color: #7d8590;
+      }
+
+      /* Day pills */
+      .day-pills {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .day-pill {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: transparent;
+        color: #7d8590;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s ease;
+      }
+
+      .day-pill:hover {
+        border-color: rgba(56, 97, 251, 0.4);
+        color: #7b9cff;
+      }
+
+      .day-pill.active {
+        background: rgba(56, 97, 251, 0.15);
+        border-color: rgba(56, 97, 251, 0.4);
+        color: #7b9cff;
+        font-weight: 600;
+      }
+
+      /* Time bar chart */
+      .time-chart {
+        position: relative;
+      }
+
+      .time-chart-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 0;
+      }
+
+      .time-chart-label {
+        width: 52px;
+        font-size: 0.8rem;
+        color: #7d8590;
+        text-align: right;
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .time-chart-bar-bg {
+        flex: 1;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .time-chart-bar {
+        height: 100%;
+        border-radius: 6px;
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        min-width: 0;
+        position: relative;
+      }
+
+      .time-chart-bar.good-bar {
+        box-shadow: 0 0 6px rgba(74, 222, 128, 0.25);
+      }
+
+      .time-chart-value {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #fff;
+        white-space: nowrap;
+        position: absolute;
+        right: 8px;
+      }
+
+      .time-chart-value.outside {
+        position: relative;
+        right: auto;
+        margin-left: 8px;
+        color: #7d8590;
+      }
+
+      .time-chart-badge {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-left: 8px;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .time-chart-badge.good {
+        color: #4ade80;
+        background: rgba(74, 222, 128, 0.1);
+      }
+
+      .time-chart-badge.peak-toll {
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.1);
+      }
+
+      .time-chart-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: #484f58;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 640px) {
+        .best-time-controls {
+          flex-direction: column;
+        }
+        .day-pills {
+          gap: 4px;
+        }
+        .day-pill {
+          padding: 5px 10px;
+          font-size: 0.75rem;
+        }
+        .time-chart-label {
+          width: 42px;
+          font-size: 0.7rem;
+        }
+        .time-chart-bar-bg {
+          height: 24px;
+        }
+        .best-time-callout {
+          flex-direction: column;
+          text-align: center;
+          gap: 8px;
+        }
+      }
+
       /* Footer */
       .footer {
         text-align: center;
@@ -667,6 +898,31 @@
           <div id="route-error" class="route-error" style="display: none">
             Unable to calculate route. Please check your addresses and try
             again.
+          </div>
+        </div>
+        <!-- Best Time to Go -->
+        <div class="best-time-section">
+          <h2>Best Time to Cross</h2>
+          <div class="best-time-controls">
+            <select class="best-time-select" id="best-time-route" onchange="loadBestTimes()">
+              <option value="">Choose a route...</option>
+              <option value="upper_nj_to_nyc">Upper Level &mdash; NJ to NYC</option>
+              <option value="lower_nj_to_nyc">Lower Level &mdash; NJ to NYC</option>
+              <option value="upper_nyc_to_nj">Upper Level &mdash; NYC to NJ</option>
+              <option value="lower_nyc_to_nj">Lower Level &mdash; NYC to NJ</option>
+            </select>
+            <select class="best-time-select" id="best-time-hours" onchange="renderChart()">
+              <option value="all">All hours</option>
+              <option value="morning">Morning commute (6 AM &ndash; 10 AM)</option>
+              <option value="daytime">Daytime (9 AM &ndash; 5 PM)</option>
+              <option value="evening">Evening commute (4 PM &ndash; 8 PM)</option>
+              <option value="night">Nighttime (8 PM &ndash; 6 AM)</option>
+            </select>
+          </div>
+          <div class="day-pills" id="day-pills"></div>
+          <div id="best-time-callout"></div>
+          <div class="time-chart" id="time-chart">
+            <div class="time-chart-empty">Choose a route above to see the best times to cross.</div>
           </div>
         </div>
       </div>
@@ -897,6 +1153,218 @@
         input.addEventListener("blur", () => {
           setTimeout(() => (list.style.display = "none"), 150);
         });
+      }
+
+      // ── Best Time to Cross ─────────────────────────────────────────
+
+      const DAY_LABELS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+      // GWB peak toll hours for NJ→NYC (Port Authority peak pricing)
+      // Weekday peak: 6-10 AM and 4-8 PM; Weekend peak: 11 AM-9 PM
+      function isPeakToll(hour, dayOfWeek) {
+        if (dayOfWeek >= 5) {
+          // weekend
+          return hour >= 11 && hour <= 20;
+        }
+        // weekday
+        return (hour >= 6 && hour <= 9) || (hour >= 16 && hour <= 19);
+      }
+
+      function fmtHour(h) {
+        if (h === 0) return "12 AM";
+        if (h === 12) return "12 PM";
+        return h < 12 ? `${h} AM` : `${h - 12} PM`;
+      }
+
+      function fmtMins(seconds) {
+        if (!seconds && seconds !== 0) return "N/A";
+        const mins = seconds / 60;
+        if (mins < 1) return "< 1 min";
+        return `${Math.round(mins)} min`;
+      }
+
+      function barColor(seconds, minSec, maxSec) {
+        if (maxSec === minSec) return "#4ade80";
+        const t = (seconds - minSec) / (maxSec - minSec);
+        if (t <= 0.33) return "#4ade80";
+        if (t <= 0.66) return "#fbbf24";
+        return "#f87171";
+      }
+
+      let selectedDay = null; // null = all days
+      let cachedHours = [];  // raw hourly data from API
+
+      const HOUR_FILTERS = {
+        all:     { min: 0,  max: 23 },
+        morning: { min: 6,  max: 10 },
+        daytime: { min: 9,  max: 17 },
+        evening: { min: 16, max: 20 },
+        night:   { min: 20, max: 6, wrap: true },
+      };
+
+      function renderDayPills() {
+        const container = document.getElementById("day-pills");
+        let html = `<button class="day-pill ${selectedDay === null ? 'active' : ''}" onclick="selectDay(null)">All Days</button>`;
+        for (let d = 0; d < 7; d++) {
+          html += `<button class="day-pill ${selectedDay === d ? 'active' : ''}" onclick="selectDay(${d})">${DAY_SHORT[d]}</button>`;
+        }
+        container.innerHTML = html;
+      }
+
+      function selectDay(d) {
+        selectedDay = d;
+        renderDayPills();
+        loadBestTimes();
+      }
+
+      function findGoodRange(hours, threshold) {
+        // Find contiguous runs of "good" hours (below threshold).
+        // Return the longest run as {start, end, avg}.
+        const good = hours.filter(h => h.avg_seconds <= threshold);
+        if (!good.length) return null;
+
+        // Sort by hour
+        good.sort((a, b) => a.hour_of_day - b.hour_of_day);
+
+        // Find contiguous stretches (allowing 1-hour gaps for missing data)
+        let runs = [];
+        let run = [good[0]];
+        for (let i = 1; i < good.length; i++) {
+          if (good[i].hour_of_day - good[i - 1].hour_of_day <= 2) {
+            run.push(good[i]);
+          } else {
+            runs.push(run);
+            run = [good[i]];
+          }
+        }
+        runs.push(run);
+
+        // Pick the longest run
+        runs.sort((a, b) => b.length - a.length);
+        const best = runs[0];
+        const avg = Math.round(best.reduce((s, h) => s + h.avg_seconds, 0) / best.length);
+        return {
+          startHour: best[0].hour_of_day,
+          endHour: best[best.length - 1].hour_of_day,
+          avg: avg,
+          hours: new Set(best.map(h => h.hour_of_day)),
+        };
+      }
+
+      async function loadBestTimes() {
+        const route = document.getElementById("best-time-route").value;
+        const chart = document.getElementById("time-chart");
+        const callout = document.getElementById("best-time-callout");
+        const pills = document.getElementById("day-pills");
+
+        if (!route) {
+          chart.innerHTML = `<div class="time-chart-empty">Choose a route above to see the best times to cross.</div>`;
+          callout.innerHTML = "";
+          pills.innerHTML = "";
+          cachedHours = [];
+          return;
+        }
+
+        renderDayPills();
+
+        const filterVal = selectedDay === null ? "all" : (selectedDay < 5 ? "weekday" : "weekend");
+
+        try {
+          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/hourly?filter=${filterVal}`);
+          const data = await resp.json();
+          cachedHours = (data.hours || []).slice().sort((a, b) => a.hour_of_day - b.hour_of_day);
+
+          if (!cachedHours.length) {
+            chart.innerHTML = `<div class="time-chart-empty">No historical data yet for this route. Data builds up as the bridge is monitored.</div>`;
+            callout.innerHTML = "";
+            return;
+          }
+
+          renderChart();
+        } catch (e) {
+          console.error("Failed to load best times:", e);
+          chart.innerHTML = `<div class="time-chart-empty">Unable to load data. Try again later.</div>`;
+          callout.innerHTML = "";
+        }
+      }
+
+      function renderChart() {
+        const route = document.getElementById("best-time-route").value;
+        const chart = document.getElementById("time-chart");
+        const callout = document.getElementById("best-time-callout");
+
+        if (!route || !cachedHours.length) return;
+
+        const isNjToNyc = route.includes("nj_to_nyc");
+        const hourFilter = HOUR_FILTERS[document.getElementById("best-time-hours").value] || HOUR_FILTERS.all;
+
+        // Filter hours to selected time window
+        const hours = cachedHours.filter(h => {
+          if (hourFilter.wrap) {
+            return h.hour_of_day >= hourFilter.min || h.hour_of_day <= hourFilter.max;
+          }
+          return h.hour_of_day >= hourFilter.min && h.hour_of_day <= hourFilter.max;
+        });
+
+        if (!hours.length) {
+          chart.innerHTML = `<div class="time-chart-empty">No data for this time window yet.</div>`;
+          callout.innerHTML = "";
+          return;
+        }
+
+        const avgValues = hours.map(h => h.avg_seconds);
+        const minSec = Math.min(...avgValues);
+        const maxSec = Math.max(...avgValues);
+
+        // "Good" = within 25% of the best time in the visible window
+        const goodThreshold = Math.round(minSec * 1.25);
+        const goodRange = findGoodRange(hours, goodThreshold);
+
+        // Callout: best time range within this window
+        const dayLabel = selectedDay !== null ? DAY_LABELS[selectedDay] + "s" : "all days";
+        if (goodRange) {
+          const rangeText = goodRange.startHour === goodRange.endHour
+            ? fmtHour(goodRange.startHour)
+            : `${fmtHour(goodRange.startHour)} \u2013 ${fmtHour(goodRange.endHour)}`;
+          callout.innerHTML = `
+            <div class="best-time-callout">
+              <div class="best-time-callout-icon">&#9203;</div>
+              <div class="best-time-callout-text">
+                <div class="best-time-callout-title">Best times: ${rangeText}</div>
+                <div class="best-time-callout-detail">Averaging ${fmtMins(goodRange.avg)} on ${dayLabel}</div>
+              </div>
+            </div>`;
+        } else {
+          callout.innerHTML = "";
+        }
+
+        // Bar chart rows
+        let chartHtml = "";
+        for (const h of hours) {
+          const pct = maxSec > 0 ? Math.max(8, (h.avg_seconds / maxSec) * 100) : 50;
+          const color = barColor(h.avg_seconds, minSec, maxSec);
+          const isGood = goodRange && goodRange.hours.has(h.hour_of_day);
+          const narrow = pct < 30;
+          const peakToll = isNjToNyc && isPeakToll(h.hour_of_day, selectedDay !== null ? selectedDay : 2);
+
+          let badges = "";
+          if (isGood) badges += `<span class="time-chart-badge good">GOOD</span>`;
+          if (peakToll) badges += `<span class="time-chart-badge peak-toll">PEAK TOLL</span>`;
+
+          chartHtml += `
+            <div class="time-chart-row">
+              <div class="time-chart-label">${fmtHour(h.hour_of_day)}</div>
+              <div class="time-chart-bar-bg">
+                <div class="time-chart-bar ${isGood ? 'good-bar' : ''}" style="width:${pct}%;background:${color}">
+                  ${!narrow ? `<span class="time-chart-value">${fmtMins(h.avg_seconds)}</span>` : ""}
+                </div>
+                ${narrow ? `<span class="time-chart-value outside">${fmtMins(h.avg_seconds)}</span>` : ""}
+                ${badges}
+              </div>
+            </div>`;
+        }
+        chart.innerHTML = chartHtml;
       }
 
       document.addEventListener("DOMContentLoaded", () => {

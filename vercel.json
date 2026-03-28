@@ -5,5 +5,11 @@
       "src": "/(.*)",
       "dest": "app/index.py"
     }
+  ],
+  "crons": [
+    {
+      "path": "/cron/collect",
+      "schedule": "37 12 * * *"
+    }
   ]
 }
