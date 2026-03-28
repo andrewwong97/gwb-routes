@@ -191,6 +191,164 @@ class HistoryStore:
         )
         return [dict(r) for r in rows]
 
+    def get_hourly_profile(self, route_name: str, weekday_only: bool = False,
+                           weekend_only: bool = False) -> list:
+        """Get average duration by hour of day, optionally filtered by weekday/weekend.
+
+        Returns: [{hour_of_day, avg_seconds, median_seconds, min_seconds, max_seconds, sample_count}, ...]
+        """
+        if not self.db.is_available():
+            return []
+
+        where_extra = ""
+        if weekday_only:
+            where_extra = " AND dr.day_of_week < 5"
+        elif weekend_only:
+            where_extra = " AND dr.day_of_week >= 5"
+
+        rows = self.db.fetch_all(
+            f"""
+            SELECT
+                dr.hour_of_day,
+                AVG(dr.duration_seconds)::INTEGER AS avg_seconds,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY dr.duration_seconds)::INTEGER AS median_seconds,
+                MIN(dr.duration_seconds) AS min_seconds,
+                MAX(dr.duration_seconds) AS max_seconds,
+                COUNT(*)::INTEGER AS sample_count
+            FROM duration_records dr
+            JOIN routes r ON r.id = dr.route_id
+            WHERE r.name = %s{where_extra}
+            GROUP BY dr.hour_of_day
+            ORDER BY dr.hour_of_day
+            """,
+            (route_name,),
+        )
+        return [dict(r) for r in rows]
+
+    def get_heatmap(self, route_name: str) -> list:
+        """Get avg duration by day_of_week and hour_of_day (heatmap matrix).
+
+        Returns: [{day_of_week, hour_of_day, avg_seconds, sample_count}, ...]
+        """
+        if not self.db.is_available():
+            return []
+
+        rows = self.db.fetch_all(
+            """
+            SELECT
+                dr.day_of_week,
+                dr.hour_of_day,
+                AVG(dr.duration_seconds)::INTEGER AS avg_seconds,
+                COUNT(*)::INTEGER AS sample_count
+            FROM duration_records dr
+            JOIN routes r ON r.id = dr.route_id
+            WHERE r.name = %s
+            GROUP BY dr.day_of_week, dr.hour_of_day
+            ORDER BY dr.day_of_week, dr.hour_of_day
+            """,
+            (route_name,),
+        )
+        return [dict(r) for r in rows]
+
+    def get_peak_comparison(self, route_name: str) -> dict:
+        """Compare rush-hour (7-9, 17-19) vs off-peak durations.
+
+        Returns: {peak: {avg, median, sample_count}, off_peak: {avg, median, sample_count}}
+        """
+        if not self.db.is_available():
+            return {}
+
+        rows = self.db.fetch_all(
+            """
+            SELECT
+                CASE WHEN dr.hour_of_day IN (7, 8, 17, 18) THEN 'peak' ELSE 'off_peak' END AS period,
+                AVG(dr.duration_seconds)::INTEGER AS avg_seconds,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY dr.duration_seconds)::INTEGER AS median_seconds,
+                COUNT(*)::INTEGER AS sample_count
+            FROM duration_records dr
+            JOIN routes r ON r.id = dr.route_id
+            WHERE r.name = %s
+            GROUP BY period
+            """,
+            (route_name,),
+        )
+        result = {}
+        for r in rows:
+            result[r["period"]] = {
+                "avg_seconds": r["avg_seconds"],
+                "median_seconds": r["median_seconds"],
+                "sample_count": r["sample_count"],
+            }
+        return result
+
+    def get_trend(self, route_name: str, recent_days: int = 7, baseline_days: int = 30) -> dict:
+        """Compare recent avg duration vs older baseline.
+
+        Returns: {recent: {avg, sample_count, period_days}, baseline: {avg, sample_count, period_days}, change_pct}
+        """
+        if not self.db.is_available():
+            return {}
+
+        rows = self.db.fetch_all(
+            """
+            SELECT
+                CASE
+                    WHEN dr.captured_at >= NOW() - INTERVAL '%s days' THEN 'recent'
+                    WHEN dr.captured_at >= NOW() - INTERVAL '%s days' THEN 'baseline'
+                END AS period,
+                AVG(dr.duration_seconds)::INTEGER AS avg_seconds,
+                COUNT(*)::INTEGER AS sample_count
+            FROM duration_records dr
+            JOIN routes r ON r.id = dr.route_id
+            WHERE r.name = %s
+              AND dr.captured_at >= NOW() - INTERVAL '%s days'
+            GROUP BY period
+            """,
+            (recent_days, baseline_days, route_name, baseline_days),
+        )
+
+        result = {"recent_days": recent_days, "baseline_days": baseline_days}
+        for r in rows:
+            if r["period"]:
+                result[r["period"]] = {
+                    "avg_seconds": r["avg_seconds"],
+                    "sample_count": r["sample_count"],
+                }
+
+        if "recent" in result and "baseline" in result and result["baseline"]["avg_seconds"]:
+            recent_avg = result["recent"]["avg_seconds"]
+            baseline_avg = result["baseline"]["avg_seconds"]
+            result["change_pct"] = round((recent_avg - baseline_avg) / baseline_avg * 100, 1)
+
+        return result
+
+    def get_route_comparison(self, direction: str) -> list:
+        """Compare upper vs lower level for a given direction (nj_to_nyc or nyc_to_nj).
+
+        Returns: [{route_name, avg_seconds, median_seconds, sample_count}, ...]
+        """
+        if not self.db.is_available():
+            return []
+
+        rows = self.db.fetch_all(
+            """
+            SELECT
+                r.name AS route_name,
+                AVG(dr.duration_seconds)::INTEGER AS avg_seconds,
+                PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY dr.duration_seconds)::INTEGER AS median_seconds,
+                MIN(dr.duration_seconds) AS min_seconds,
+                MAX(dr.duration_seconds) AS max_seconds,
+                COUNT(*)::INTEGER AS sample_count
+            FROM duration_records dr
+            JOIN routes r ON r.id = dr.route_id
+            WHERE r.name LIKE %s
+            GROUP BY r.name
+            ORDER BY avg_seconds ASC
+            """,
+            (f"%{direction}",),
+        )
+        return [dict(r) for r in rows]
+
     def get_daily_summary(self, route_name: str) -> list:
         """Get average duration by day of week for a route.
 

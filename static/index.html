@@ -473,6 +473,313 @@
         text-align: center;
       }
 
+      /* Insights */
+      .insights-section {
+        margin-top: 32px;
+      }
+
+      .insights-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 20px 28px;
+        cursor: pointer;
+        color: #e1e4e8;
+        font-family: inherit;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: background 0.2s, border-color 0.2s;
+      }
+
+      .insights-toggle:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .insights-toggle .arrow {
+        transition: transform 0.3s ease;
+        color: #7d8590;
+        font-size: 0.9rem;
+      }
+
+      .insights-toggle.open .arrow {
+        transform: rotate(180deg);
+      }
+
+      .insights-body {
+        display: none;
+        margin-top: 16px;
+      }
+
+      .insights-body.open {
+        display: block;
+      }
+
+      .insights-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .insights-select {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: #e1e4e8;
+        font-family: inherit;
+        font-size: 0.85rem;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .insights-select:focus {
+        border-color: rgba(56, 97, 251, 0.5);
+      }
+
+      .insights-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .insight-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 22px;
+      }
+
+      .insight-card h3 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #7d8590;
+        margin-bottom: 14px;
+      }
+
+      .insight-stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .insight-stat:last-child {
+        border-bottom: none;
+      }
+
+      .insight-stat-label {
+        font-size: 0.85rem;
+        color: #7d8590;
+      }
+
+      .insight-stat-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #e1e4e8;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .insight-stat-value.good { color: #4ade80; }
+      .insight-stat-value.warn { color: #fbbf24; }
+      .insight-stat-value.bad { color: #f87171; }
+
+      .trend-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 12px;
+      }
+
+      .trend-badge.up {
+        background: rgba(248, 113, 113, 0.12);
+        color: #f87171;
+      }
+
+      .trend-badge.down {
+        background: rgba(74, 222, 128, 0.12);
+        color: #4ade80;
+      }
+
+      .trend-badge.flat {
+        background: rgba(251, 191, 36, 0.12);
+        color: #fbbf24;
+      }
+
+      /* Hourly chart */
+      .hourly-chart {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 16px;
+      }
+
+      .hourly-chart h3 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #7d8590;
+        margin-bottom: 16px;
+      }
+
+      .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 120px;
+        padding-top: 8px;
+      }
+
+      .bar-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        justify-content: flex-end;
+      }
+
+      .bar {
+        width: 100%;
+        min-height: 2px;
+        border-radius: 3px 3px 0 0;
+        transition: height 0.4s ease;
+        position: relative;
+      }
+
+      .bar:hover {
+        opacity: 0.85;
+      }
+
+      .bar-label {
+        font-size: 0.55rem;
+        color: #484f58;
+        margin-top: 4px;
+        text-align: center;
+      }
+
+      .bar-tooltip {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1c1f26;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        color: #e1e4e8;
+        white-space: nowrap;
+        z-index: 10;
+      }
+
+      .bar:hover .bar-tooltip {
+        display: block;
+      }
+
+      /* Heatmap */
+      .heatmap-container {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+      }
+
+      .heatmap-container h3 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #7d8590;
+        margin-bottom: 16px;
+      }
+
+      .heatmap-grid {
+        display: grid;
+        grid-template-columns: 40px repeat(24, 1fr);
+        gap: 2px;
+        min-width: 500px;
+      }
+
+      .heatmap-cell {
+        aspect-ratio: 1;
+        border-radius: 3px;
+        min-width: 14px;
+        min-height: 14px;
+        position: relative;
+        cursor: default;
+      }
+
+      .heatmap-cell:hover {
+        outline: 1px solid rgba(255, 255, 255, 0.3);
+        z-index: 1;
+      }
+
+      .heatmap-row-label {
+        font-size: 0.6rem;
+        color: #7d8590;
+        display: flex;
+        align-items: center;
+        padding-right: 4px;
+      }
+
+      .heatmap-col-label {
+        font-size: 0.55rem;
+        color: #484f58;
+        text-align: center;
+      }
+
+      .heatmap-legend {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 10px;
+        font-size: 0.65rem;
+        color: #484f58;
+      }
+
+      .heatmap-legend-swatch {
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
+      }
+
+      .insights-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: #484f58;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 640px) {
+        .insights-grid {
+          grid-template-columns: 1fr;
+        }
+        .insights-controls {
+          flex-direction: column;
+        }
+        .bar-label {
+          font-size: 0.45rem;
+        }
+      }
+
       /* Footer */
       .footer {
         text-align: center;
@@ -667,6 +974,50 @@
           <div id="route-error" class="route-error" style="display: none">
             Unable to calculate route. Please check your addresses and try
             again.
+          </div>
+        </div>
+        <!-- Historical Insights -->
+        <div class="insights-section">
+          <button class="insights-toggle" id="insights-toggle" onclick="toggleInsights()">
+            Historical Insights
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="insights-body" id="insights-body">
+            <div class="insights-controls">
+              <select class="insights-select" id="insights-route" onchange="loadInsights()">
+                <option value="">Select a route...</option>
+              </select>
+              <select class="insights-select" id="insights-day-filter" onchange="loadHourlyProfile()">
+                <option value="all">All days</option>
+                <option value="weekday">Weekdays only</option>
+                <option value="weekend">Weekends only</option>
+              </select>
+            </div>
+
+            <div id="insights-content" style="display:none">
+              <!-- Peak vs Off-Peak + Trend -->
+              <div class="insights-grid" id="insights-summary"></div>
+
+              <!-- Route Comparison -->
+              <div class="insights-grid" id="insights-comparison"></div>
+
+              <!-- Hourly bar chart -->
+              <div class="hourly-chart" id="hourly-chart-container">
+                <h3>Average Duration by Hour</h3>
+                <div class="bar-chart" id="hourly-bars"></div>
+              </div>
+
+              <!-- Heatmap -->
+              <div class="heatmap-container" id="heatmap-container">
+                <h3>Duration Heatmap (Day &times; Hour)</h3>
+                <div class="heatmap-grid" id="heatmap-grid"></div>
+                <div class="heatmap-legend" id="heatmap-legend"></div>
+              </div>
+            </div>
+
+            <div id="insights-empty" class="insights-empty">
+              Select a route above to view historical insights.
+            </div>
           </div>
         </div>
       </div>
@@ -899,6 +1250,321 @@
         });
       }
 
+      // ── Insights ──────────────────────────────────────────────────
+
+      const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+      function fmtDuration(seconds) {
+        if (!seconds && seconds !== 0) return "N/A";
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return m > 0 ? `${m}m ${s}s` : `${s}s`;
+      }
+
+      function fmtMins(seconds) {
+        if (!seconds && seconds !== 0) return "N/A";
+        return `${(seconds / 60).toFixed(1)} min`;
+      }
+
+      function durationColor(seconds) {
+        const mins = seconds / 60;
+        if (mins <= 5) return "good";
+        if (mins <= 9) return "warn";
+        return "bad";
+      }
+
+      function toggleInsights() {
+        const toggle = document.getElementById("insights-toggle");
+        const body = document.getElementById("insights-body");
+        toggle.classList.toggle("open");
+        body.classList.toggle("open");
+        if (body.classList.contains("open") && !document.getElementById("insights-route").options.length > 1) {
+          loadInsightRoutes();
+        }
+      }
+
+      async function loadInsightRoutes() {
+        try {
+          const resp = await fetch(`${API_BASE}/history/routes`);
+          if (!resp.ok) return;
+          const routes = await resp.json();
+          const sel = document.getElementById("insights-route");
+          // keep the placeholder
+          while (sel.options.length > 1) sel.remove(1);
+          routes.forEach(r => {
+            if (r.record_count > 0) {
+              const opt = document.createElement("option");
+              opt.value = r.name;
+              opt.textContent = r.name.replace(/_/g, " ");
+              sel.appendChild(opt);
+            }
+          });
+        } catch (e) {
+          console.error("Failed to load insight routes:", e);
+        }
+      }
+
+      async function loadInsights() {
+        const route = document.getElementById("insights-route").value;
+        const content = document.getElementById("insights-content");
+        const empty = document.getElementById("insights-empty");
+        if (!route) {
+          content.style.display = "none";
+          empty.style.display = "block";
+          return;
+        }
+        content.style.display = "block";
+        empty.style.display = "none";
+        // load all insight data in parallel
+        await Promise.all([
+          loadPeakAndTrend(route),
+          loadRouteComparison(route),
+          loadHourlyProfile(),
+          loadHeatmap(route),
+        ]);
+      }
+
+      async function loadPeakAndTrend(route) {
+        const container = document.getElementById("insights-summary");
+        container.innerHTML = "";
+        try {
+          const [peakResp, trendResp] = await Promise.all([
+            fetch(`${API_BASE}/history/${encodeURIComponent(route)}/peak`),
+            fetch(`${API_BASE}/history/${encodeURIComponent(route)}/trend`),
+          ]);
+          const peak = await peakResp.json();
+          const trend = await trendResp.json();
+
+          // Peak card
+          let peakHtml = `<div class="insight-card"><h3>Peak vs Off-Peak</h3>`;
+          if (peak.peak) {
+            peakHtml += `
+              <div class="insight-stat">
+                <span class="insight-stat-label">Rush Hour (7-9a, 5-7p)</span>
+                <span class="insight-stat-value ${durationColor(peak.peak.avg_seconds)}">${fmtMins(peak.peak.avg_seconds)}</span>
+              </div>`;
+          }
+          if (peak.off_peak) {
+            peakHtml += `
+              <div class="insight-stat">
+                <span class="insight-stat-label">Off-Peak</span>
+                <span class="insight-stat-value ${durationColor(peak.off_peak.avg_seconds)}">${fmtMins(peak.off_peak.avg_seconds)}</span>
+              </div>`;
+          }
+          if (peak.peak && peak.off_peak) {
+            const diff = peak.peak.avg_seconds - peak.off_peak.avg_seconds;
+            const pct = ((diff / peak.off_peak.avg_seconds) * 100).toFixed(0);
+            peakHtml += `
+              <div class="insight-stat">
+                <span class="insight-stat-label">Rush Hour Premium</span>
+                <span class="insight-stat-value ${diff > 0 ? 'bad' : 'good'}">${diff > 0 ? '+' : ''}${pct}%</span>
+              </div>`;
+          }
+          if (!peak.peak && !peak.off_peak) {
+            peakHtml += `<div class="insight-stat"><span class="insight-stat-label">No data yet</span></div>`;
+          }
+          peakHtml += `</div>`;
+
+          // Trend card
+          let trendHtml = `<div class="insight-card"><h3>7-Day Trend</h3>`;
+          if (trend.recent) {
+            trendHtml += `
+              <div class="insight-stat">
+                <span class="insight-stat-label">Last ${trend.recent_days} days avg</span>
+                <span class="insight-stat-value">${fmtMins(trend.recent.avg_seconds)}</span>
+              </div>`;
+          }
+          if (trend.baseline) {
+            trendHtml += `
+              <div class="insight-stat">
+                <span class="insight-stat-label">Prior ${trend.baseline_days} days avg</span>
+                <span class="insight-stat-value">${fmtMins(trend.baseline.avg_seconds)}</span>
+              </div>`;
+          }
+          if (trend.change_pct !== null && trend.change_pct !== undefined) {
+            const cls = trend.change_pct > 2 ? "up" : trend.change_pct < -2 ? "down" : "flat";
+            const arrow = cls === "up" ? "&#9650;" : cls === "down" ? "&#9660;" : "&#8212;";
+            trendHtml += `
+              <div class="insight-stat">
+                <span class="insight-stat-label">Change</span>
+                <span class="trend-badge ${cls}">${arrow} ${Math.abs(trend.change_pct).toFixed(1)}%</span>
+              </div>`;
+          }
+          if (!trend.recent && !trend.baseline) {
+            trendHtml += `<div class="insight-stat"><span class="insight-stat-label">No data yet</span></div>`;
+          }
+          trendHtml += `</div>`;
+
+          container.innerHTML = peakHtml + trendHtml;
+        } catch (e) {
+          console.error("Failed to load peak/trend:", e);
+          container.innerHTML = "";
+        }
+      }
+
+      async function loadRouteComparison(route) {
+        const container = document.getElementById("insights-comparison");
+        container.innerHTML = "";
+        // derive direction from route name
+        let direction = null;
+        if (route.includes("nj_to_nyc")) direction = "nj_to_nyc";
+        else if (route.includes("nyc_to_nj")) direction = "nyc_to_nj";
+        if (!direction) return;
+
+        try {
+          const resp = await fetch(`${API_BASE}/history/compare/${direction}`);
+          const data = await resp.json();
+          if (!data.routes || data.routes.length < 2) return;
+
+          const dirLabel = direction === "nj_to_nyc" ? "NJ \u2192 NYC" : "NYC \u2192 NJ";
+          let html = `<div class="insight-card" style="grid-column: 1 / -1"><h3>Level Comparison \u2014 ${dirLabel}</h3>`;
+          data.routes.forEach(r => {
+            const label = r.route_name.includes("upper") ? "Upper Level" : "Lower Level";
+            html += `
+              <div class="insight-stat">
+                <span class="insight-stat-label">${label}</span>
+                <span class="insight-stat-value ${durationColor(r.avg_seconds)}">${fmtMins(r.avg_seconds)}</span>
+              </div>
+              <div class="insight-stat" style="padding-left:16px">
+                <span class="insight-stat-label">Range</span>
+                <span class="insight-stat-value" style="font-size:0.85rem">${fmtMins(r.min_seconds)} \u2013 ${fmtMins(r.max_seconds)}</span>
+              </div>`;
+          });
+          // show which is faster
+          const faster = data.routes[0];
+          const slower = data.routes[1];
+          const saved = slower.avg_seconds - faster.avg_seconds;
+          if (saved > 0) {
+            const fasterLabel = faster.route_name.includes("upper") ? "Upper" : "Lower";
+            html += `<div class="insight-stat">
+              <span class="insight-stat-label">Avg savings</span>
+              <span class="insight-stat-value good">${fasterLabel} saves ${fmtMins(saved)}</span>
+            </div>`;
+          }
+          html += `</div>`;
+          container.innerHTML = html;
+        } catch (e) {
+          console.error("Failed to load comparison:", e);
+        }
+      }
+
+      async function loadHourlyProfile() {
+        const route = document.getElementById("insights-route").value;
+        const filter = document.getElementById("insights-day-filter").value;
+        const barsEl = document.getElementById("hourly-bars");
+        if (!route) return;
+
+        try {
+          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/hourly?filter=${filter}`);
+          const data = await resp.json();
+          if (!data.hours || !data.hours.length) {
+            barsEl.innerHTML = `<span style="color:#484f58;font-size:0.85rem;margin:auto">No data</span>`;
+            return;
+          }
+
+          // fill all 24 hours (some may be missing)
+          const byHour = {};
+          data.hours.forEach(h => byHour[h.hour_of_day] = h);
+          const maxVal = Math.max(...data.hours.map(h => h.avg_seconds));
+
+          let html = "";
+          for (let h = 0; h < 24; h++) {
+            const d = byHour[h];
+            if (d) {
+              const pct = (d.avg_seconds / maxVal * 100).toFixed(0);
+              const mins = d.avg_seconds / 60;
+              const color = mins <= 5 ? "#4ade80" : mins <= 9 ? "#fbbf24" : "#f87171";
+              html += `<div class="bar-col">
+                <div class="bar" style="height:${pct}%;background:${color}">
+                  <div class="bar-tooltip">${h}:00 &mdash; ${fmtMins(d.avg_seconds)} (${d.sample_count} samples)</div>
+                </div>
+                <div class="bar-label">${h}</div>
+              </div>`;
+            } else {
+              html += `<div class="bar-col">
+                <div class="bar" style="height:2px;background:rgba(255,255,255,0.05)"></div>
+                <div class="bar-label">${h}</div>
+              </div>`;
+            }
+          }
+          barsEl.innerHTML = html;
+        } catch (e) {
+          console.error("Failed to load hourly profile:", e);
+        }
+      }
+
+      async function loadHeatmap(route) {
+        const grid = document.getElementById("heatmap-grid");
+        const legend = document.getElementById("heatmap-legend");
+        if (!route) return;
+
+        try {
+          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/heatmap`);
+          const data = await resp.json();
+          if (!data.cells || !data.cells.length) {
+            grid.innerHTML = `<span style="color:#484f58;font-size:0.85rem">No data</span>`;
+            legend.innerHTML = "";
+            return;
+          }
+
+          const lookup = {};
+          let minVal = Infinity, maxVal = 0;
+          data.cells.forEach(c => {
+            lookup[`${c.day_of_week}-${c.hour_of_day}`] = c;
+            if (c.avg_seconds < minVal) minVal = c.avg_seconds;
+            if (c.avg_seconds > maxVal) maxVal = c.avg_seconds;
+          });
+
+          function heatColor(val) {
+            if (val === null) return "rgba(255,255,255,0.02)";
+            const t = maxVal === minVal ? 0.5 : (val - minVal) / (maxVal - minVal);
+            // green -> yellow -> red
+            if (t <= 0.5) {
+              const r = Math.round(74 + (251 - 74) * (t * 2));
+              const g = Math.round(222 - (222 - 191) * (t * 2));
+              const b = Math.round(128 - (128 - 36) * (t * 2));
+              return `rgba(${r},${g},${b},0.7)`;
+            } else {
+              const t2 = (t - 0.5) * 2;
+              const r = Math.round(251 - (251 - 248) * t2);
+              const g = Math.round(191 - (191 - 113) * t2);
+              const b = Math.round(36 + (113 - 36) * t2);
+              return `rgba(${r},${g},${b},0.7)`;
+            }
+          }
+
+          // header row
+          let html = `<div></div>`;
+          for (let h = 0; h < 24; h++) {
+            html += `<div class="heatmap-col-label">${h}</div>`;
+          }
+          // data rows
+          for (let d = 0; d < 7; d++) {
+            html += `<div class="heatmap-row-label">${DAY_NAMES[d]}</div>`;
+            for (let h = 0; h < 24; h++) {
+              const cell = lookup[`${d}-${h}`];
+              const bg = heatColor(cell ? cell.avg_seconds : null);
+              const title = cell ? `${DAY_NAMES[d]} ${h}:00 — ${fmtMins(cell.avg_seconds)} (${cell.sample_count})` : `${DAY_NAMES[d]} ${h}:00 — no data`;
+              html += `<div class="heatmap-cell" style="background:${bg}" title="${title}"></div>`;
+            }
+          }
+          grid.innerHTML = html;
+
+          // legend
+          legend.innerHTML = `
+            <span>Faster</span>
+            <div class="heatmap-legend-swatch" style="background:rgba(74,222,128,0.7)"></div>
+            <div class="heatmap-legend-swatch" style="background:rgba(163,207,82,0.7)"></div>
+            <div class="heatmap-legend-swatch" style="background:rgba(251,191,36,0.7)"></div>
+            <div class="heatmap-legend-swatch" style="background:rgba(250,152,75,0.7)"></div>
+            <div class="heatmap-legend-swatch" style="background:rgba(248,113,113,0.7)"></div>
+            <span>Slower</span>
+          `;
+        } catch (e) {
+          console.error("Failed to load heatmap:", e);
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         loadTrafficData();
         setupAutocomplete("origin-input", "origin-autocomplete");
@@ -910,6 +1576,7 @@
         if (savedDest)
           document.getElementById("destination-input").value = savedDest;
         if (savedOrigin && savedDest) findBestRoute();
+        loadInsightRoutes();
       });
 
       // Auto-refresh every 3 minutes

@@ -71,3 +71,72 @@ class DurationRecord(BaseModel):
 class TimeSeriesResponse(BaseModel):
     route_name: str
     records: List[DurationRecord]
+
+
+# ── Insights models ───────────────────────────────────────────────────
+
+class HourlyBucket(BaseModel):
+    hour_of_day: int
+    avg_seconds: int
+    median_seconds: int
+    min_seconds: int
+    max_seconds: int
+    sample_count: int
+
+
+class HourlyProfileResponse(BaseModel):
+    route_name: str
+    filter: str  # "all", "weekday", "weekend"
+    hours: List[HourlyBucket]
+
+
+class HeatmapCell(BaseModel):
+    day_of_week: int
+    hour_of_day: int
+    avg_seconds: int
+    sample_count: int
+
+
+class HeatmapResponse(BaseModel):
+    route_name: str
+    cells: List[HeatmapCell]
+
+
+class PeriodStats(BaseModel):
+    avg_seconds: int
+    median_seconds: int
+    sample_count: int
+
+
+class PeakComparisonResponse(BaseModel):
+    route_name: str
+    peak: Optional[PeriodStats] = None
+    off_peak: Optional[PeriodStats] = None
+
+
+class TrendPeriod(BaseModel):
+    avg_seconds: int
+    sample_count: int
+
+
+class TrendResponse(BaseModel):
+    route_name: str
+    recent_days: int
+    baseline_days: int
+    recent: Optional[TrendPeriod] = None
+    baseline: Optional[TrendPeriod] = None
+    change_pct: Optional[float] = None
+
+
+class RouteComparisonEntry(BaseModel):
+    route_name: str
+    avg_seconds: int
+    median_seconds: int
+    min_seconds: int
+    max_seconds: int
+    sample_count: int
+
+
+class RouteComparisonResponse(BaseModel):
+    direction: str
+    routes: List[RouteComparisonEntry]

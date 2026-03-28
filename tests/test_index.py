@@ -132,6 +132,96 @@ class TestPlacesAutocompleteEndpoint:
 
 
 
+class TestInsightsEndpoints:
+    def test_hourly_profile(self, test_client):
+        client, _ = test_client
+        with patch("index.api_client") as mock_api:
+            mock_api.history.get_hourly_profile.return_value = [
+                {"hour_of_day": 8, "avg_seconds": 480, "median_seconds": 460,
+                 "min_seconds": 300, "max_seconds": 700, "sample_count": 25},
+            ]
+            resp = client.get("/history/upper_nj_to_nyc/hourly?filter=weekday")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["route_name"] == "upper_nj_to_nyc"
+            assert data["filter"] == "weekday"
+            assert len(data["hours"]) == 1
+            assert data["hours"][0]["hour_of_day"] == 8
+
+    def test_hourly_profile_invalid_filter(self, test_client):
+        client, _ = test_client
+        resp = client.get("/history/upper_nj_to_nyc/hourly?filter=invalid")
+        assert resp.status_code == 422
+
+    def test_heatmap(self, test_client):
+        client, _ = test_client
+        with patch("index.api_client") as mock_api:
+            mock_api.history.get_heatmap.return_value = [
+                {"day_of_week": 0, "hour_of_day": 8, "avg_seconds": 500, "sample_count": 10},
+            ]
+            resp = client.get("/history/upper_nj_to_nyc/heatmap")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert len(data["cells"]) == 1
+
+    def test_peak_comparison(self, test_client):
+        client, _ = test_client
+        with patch("index.api_client") as mock_api:
+            mock_api.history.get_peak_comparison.return_value = {
+                "peak": {"avg_seconds": 600, "median_seconds": 580, "sample_count": 50},
+                "off_peak": {"avg_seconds": 400, "median_seconds": 390, "sample_count": 100},
+            }
+            resp = client.get("/history/upper_nj_to_nyc/peak")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["peak"]["avg_seconds"] == 600
+            assert data["off_peak"]["avg_seconds"] == 400
+
+    def test_peak_comparison_empty(self, test_client):
+        client, _ = test_client
+        with patch("index.api_client") as mock_api:
+            mock_api.history.get_peak_comparison.return_value = {}
+            resp = client.get("/history/upper_nj_to_nyc/peak")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["peak"] is None
+            assert data["off_peak"] is None
+
+    def test_trend(self, test_client):
+        client, _ = test_client
+        with patch("index.api_client") as mock_api:
+            mock_api.history.get_trend.return_value = {
+                "recent_days": 7, "baseline_days": 30,
+                "recent": {"avg_seconds": 500, "sample_count": 20},
+                "baseline": {"avg_seconds": 480, "sample_count": 80},
+                "change_pct": 4.2,
+            }
+            resp = client.get("/history/upper_nj_to_nyc/trend")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["change_pct"] == 4.2
+
+    def test_route_comparison(self, test_client):
+        client, _ = test_client
+        with patch("index.api_client") as mock_api:
+            mock_api.history.get_route_comparison.return_value = [
+                {"route_name": "upper_nj_to_nyc", "avg_seconds": 450, "median_seconds": 440,
+                 "min_seconds": 300, "max_seconds": 600, "sample_count": 50},
+                {"route_name": "lower_nj_to_nyc", "avg_seconds": 480, "median_seconds": 470,
+                 "min_seconds": 310, "max_seconds": 650, "sample_count": 45},
+            ]
+            resp = client.get("/history/compare/nj_to_nyc")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["direction"] == "nj_to_nyc"
+            assert len(data["routes"]) == 2
+
+    def test_route_comparison_invalid_direction(self, test_client):
+        client, _ = test_client
+        resp = client.get("/history/compare/invalid_dir")
+        assert resp.status_code == 400
+
+
 class TestDashboard:
     def test_dashboard_root(self, test_client):
         client, _ = test_client

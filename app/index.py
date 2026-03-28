@@ -22,6 +22,11 @@ try:
         BestTimesResponse, TimeWindow,
         DailySummaryResponse, DailySummary,
         TimeSeriesResponse, DurationRecord, TrackedRoute,
+        HourlyProfileResponse, HourlyBucket,
+        HeatmapResponse, HeatmapCell,
+        PeakComparisonResponse, PeriodStats,
+        TrendResponse, TrendPeriod,
+        RouteComparisonResponse, RouteComparisonEntry,
     )
     log.info("Using relative imports")
 except ImportError:
@@ -33,6 +38,11 @@ except ImportError:
         BestTimesResponse, TimeWindow,
         DailySummaryResponse, DailySummary,
         TimeSeriesResponse, DurationRecord, TrackedRoute,
+        HourlyProfileResponse, HourlyBucket,
+        HeatmapResponse, HeatmapCell,
+        PeakComparisonResponse, PeriodStats,
+        TrendResponse, TrendPeriod,
+        RouteComparisonResponse, RouteComparisonEntry,
     )
 
 
@@ -185,6 +195,78 @@ async def time_series(
             )
             for r in records
         ],
+    )
+
+
+# ── Insights endpoints ────────────────────────────────────────────────
+
+@app.get("/history/{route_name}/hourly", response_model=HourlyProfileResponse)
+async def hourly_profile(
+    route_name: str,
+    filter: str = Query("all", pattern="^(all|weekday|weekend)$",
+                         description="all, weekday (Mon-Fri), or weekend (Sat-Sun)"),
+):
+    """Average duration by hour of day, optionally filtered by weekday/weekend."""
+    hours = api_client.history.get_hourly_profile(
+        route_name,
+        weekday_only=(filter == "weekday"),
+        weekend_only=(filter == "weekend"),
+    )
+    return HourlyProfileResponse(
+        route_name=route_name,
+        filter=filter,
+        hours=[HourlyBucket(**h) for h in hours],
+    )
+
+
+@app.get("/history/{route_name}/heatmap", response_model=HeatmapResponse)
+async def heatmap(route_name: str):
+    """Average duration by day-of-week and hour (for heatmap visualization)."""
+    cells = api_client.history.get_heatmap(route_name)
+    return HeatmapResponse(
+        route_name=route_name,
+        cells=[HeatmapCell(**c) for c in cells],
+    )
+
+
+@app.get("/history/{route_name}/peak", response_model=PeakComparisonResponse)
+async def peak_comparison(route_name: str):
+    """Compare rush-hour (7-9 AM, 5-7 PM) vs off-peak durations."""
+    data = api_client.history.get_peak_comparison(route_name)
+    return PeakComparisonResponse(
+        route_name=route_name,
+        peak=PeriodStats(**data["peak"]) if "peak" in data else None,
+        off_peak=PeriodStats(**data["off_peak"]) if "off_peak" in data else None,
+    )
+
+
+@app.get("/history/{route_name}/trend", response_model=TrendResponse)
+async def trend(
+    route_name: str,
+    recent_days: int = Query(7, ge=1, le=30, description="Recent window in days"),
+    baseline_days: int = Query(30, ge=7, le=90, description="Baseline window in days"),
+):
+    """Compare recent average duration vs older baseline to detect trends."""
+    data = api_client.history.get_trend(route_name, recent_days, baseline_days)
+    return TrendResponse(
+        route_name=route_name,
+        recent_days=data.get("recent_days", recent_days),
+        baseline_days=data.get("baseline_days", baseline_days),
+        recent=TrendPeriod(**data["recent"]) if "recent" in data else None,
+        baseline=TrendPeriod(**data["baseline"]) if "baseline" in data else None,
+        change_pct=data.get("change_pct"),
+    )
+
+
+@app.get("/history/compare/{direction}", response_model=RouteComparisonResponse)
+async def route_comparison(direction: str):
+    """Compare upper vs lower level for a direction based on historical averages."""
+    if direction not in ("nj_to_nyc", "nyc_to_nj"):
+        raise HTTPException(status_code=400, detail="direction must be nj_to_nyc or nyc_to_nj")
+    rows = api_client.history.get_route_comparison(direction)
+    return RouteComparisonResponse(
+        direction=direction,
+        routes=[RouteComparisonEntry(**r) for r in rows],
     )
 
 
