@@ -2,8 +2,6 @@
 
 This script fetches current driving times (with traffic) from your origin to the George Washington Bridge, comparing **Upper Level** and **Lower Level** routes.
 
-<img width="865" height="760" alt="image" src="https://github.com/user-attachments/assets/daf4c757-cb6a-4e89-bb90-3ed577b1e553" />
-
 ## Getting an API key
 
 Visit the following Google Cloud console and create a project with API access. Restrict the API key to only use Directions and Places API.
