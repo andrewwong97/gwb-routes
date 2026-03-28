@@ -632,8 +632,8 @@
         position: relative;
       }
 
-      .time-chart-bar.best-bar {
-        box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
+      .time-chart-bar.good-bar {
+        box-shadow: 0 0 6px rgba(74, 222, 128, 0.25);
       }
 
       .time-chart-value {
@@ -652,13 +652,24 @@
         color: #7d8590;
       }
 
-      .time-chart-best-badge {
-        font-size: 0.65rem;
+      .time-chart-badge {
+        font-size: 0.6rem;
         font-weight: 600;
-        color: #4ade80;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-left: 8px;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .time-chart-badge.good {
+        color: #4ade80;
+        background: rgba(74, 222, 128, 0.1);
+      }
+
+      .time-chart-badge.peak-toll {
+        color: #fbbf24;
+        background: rgba(251, 191, 36, 0.1);
       }
 
       .time-chart-empty {
@@ -1191,6 +1202,40 @@
         loadBestTimes();
       }
 
+      function findGoodRange(hours, threshold) {
+        // Find contiguous runs of "good" hours (below threshold).
+        // Return the longest run as {start, end, avg}.
+        const good = hours.filter(h => h.avg_seconds <= threshold);
+        if (!good.length) return null;
+
+        // Sort by hour
+        good.sort((a, b) => a.hour_of_day - b.hour_of_day);
+
+        // Find contiguous stretches (allowing 1-hour gaps for missing data)
+        let runs = [];
+        let run = [good[0]];
+        for (let i = 1; i < good.length; i++) {
+          if (good[i].hour_of_day - good[i - 1].hour_of_day <= 2) {
+            run.push(good[i]);
+          } else {
+            runs.push(run);
+            run = [good[i]];
+          }
+        }
+        runs.push(run);
+
+        // Pick the longest run
+        runs.sort((a, b) => b.length - a.length);
+        const best = runs[0];
+        const avg = Math.round(best.reduce((s, h) => s + h.avg_seconds, 0) / best.length);
+        return {
+          startHour: best[0].hour_of_day,
+          endHour: best[best.length - 1].hour_of_day,
+          avg: avg,
+          hours: new Set(best.map(h => h.hour_of_day)),
+        };
+      }
+
       async function loadBestTimes() {
         const route = document.getElementById("best-time-route").value;
         const chart = document.getElementById("time-chart");
@@ -1207,13 +1252,11 @@
         renderDayPills();
 
         const isNjToNyc = route.includes("nj_to_nyc");
-        const dayParam = selectedDay !== null ? `&day_of_week=${selectedDay}` : "";
+        const filterVal = selectedDay === null ? "all" : (selectedDay < 5 ? "weekday" : "weekend");
 
         try {
-          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/hourly?filter=${selectedDay === null ? 'all' : (selectedDay < 5 ? 'weekday' : 'weekend')}`);
+          const resp = await fetch(`${API_BASE}/history/${encodeURIComponent(route)}/hourly?filter=${filterVal}`);
           const data = await resp.json();
-
-          // If a specific day is selected, use best-times endpoint for that day
           let hours = data.hours || [];
 
           if (!hours.length) {
@@ -1228,39 +1271,51 @@
           const avgValues = hours.map(h => h.avg_seconds);
           const minSec = Math.min(...avgValues);
           const maxSec = Math.max(...avgValues);
-          const bestHour = hours.reduce((best, h) => h.avg_seconds < best.avg_seconds ? h : best, hours[0]);
 
-          // Callout: best time
+          // "Good" = within 25% of the best time
+          const goodThreshold = Math.round(minSec * 1.25);
+          const goodRange = findGoodRange(hours, goodThreshold);
+
+          // Callout: best time range
           const dayLabel = selectedDay !== null ? DAY_LABELS[selectedDay] + "s" : "all days";
-          callout.innerHTML = `
-            <div class="best-time-callout">
-              <div class="best-time-callout-icon">&#9203;</div>
-              <div class="best-time-callout-text">
-                <div class="best-time-callout-title">Best time: ${fmtHour(bestHour.hour_of_day)}</div>
-                <div class="best-time-callout-detail">Average crossing time of ${fmtMins(bestHour.avg_seconds)} on ${dayLabel}${isNjToNyc ? ` &middot; ${isPeakToll(bestHour.hour_of_day, selectedDay !== null ? selectedDay : 2) ? "Peak toll" : "Off-peak toll"}` : ""}</div>
-              </div>
-            </div>`;
+          if (goodRange) {
+            const rangeText = goodRange.startHour === goodRange.endHour
+              ? fmtHour(goodRange.startHour)
+              : `${fmtHour(goodRange.startHour)} \u2013 ${fmtHour(goodRange.endHour)}`;
+            callout.innerHTML = `
+              <div class="best-time-callout">
+                <div class="best-time-callout-icon">&#9203;</div>
+                <div class="best-time-callout-text">
+                  <div class="best-time-callout-title">Best times: ${rangeText}</div>
+                  <div class="best-time-callout-detail">Averaging ${fmtMins(goodRange.avg)} on ${dayLabel}</div>
+                </div>
+              </div>`;
+          } else {
+            callout.innerHTML = "";
+          }
 
-          // Bar chart rows
+          // Bar chart rows — show every hour that has data
           let chartHtml = "";
           for (const h of hours) {
             const pct = maxSec > 0 ? Math.max(8, (h.avg_seconds / maxSec) * 100) : 50;
             const color = barColor(h.avg_seconds, minSec, maxSec);
-            const isBest = h.hour_of_day === bestHour.hour_of_day;
+            const isGood = goodRange && goodRange.hours.has(h.hour_of_day);
             const narrow = pct < 30;
-            const peakLabel = isNjToNyc && isPeakToll(h.hour_of_day, selectedDay !== null ? selectedDay : 2)
-              ? `<span style="font-size:0.6rem;color:#fbbf24;margin-left:6px;font-weight:500">PEAK TOLL</span>` : "";
+            const peakToll = isNjToNyc && isPeakToll(h.hour_of_day, selectedDay !== null ? selectedDay : 2);
+
+            let badges = "";
+            if (isGood) badges += `<span class="time-chart-badge good">GOOD</span>`;
+            if (peakToll) badges += `<span class="time-chart-badge peak-toll">PEAK TOLL</span>`;
 
             chartHtml += `
               <div class="time-chart-row">
                 <div class="time-chart-label">${fmtHour(h.hour_of_day)}</div>
                 <div class="time-chart-bar-bg">
-                  <div class="time-chart-bar ${isBest ? 'best-bar' : ''}" style="width:${pct}%;background:${color}">
+                  <div class="time-chart-bar ${isGood ? 'good-bar' : ''}" style="width:${pct}%;background:${color}">
                     ${!narrow ? `<span class="time-chart-value">${fmtMins(h.avg_seconds)}</span>` : ""}
                   </div>
                   ${narrow ? `<span class="time-chart-value outside">${fmtMins(h.avg_seconds)}</span>` : ""}
-                  ${isBest ? `<span class="time-chart-best-badge">BEST</span>` : ""}
-                  ${peakLabel}
+                  ${badges}
                 </div>
               </div>`;
           }
