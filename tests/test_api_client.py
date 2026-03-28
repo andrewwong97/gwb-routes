@@ -264,8 +264,9 @@ class TestGetRouteRecommendation:
 
         result = client.get_route_recommendation("Fort Lee, NJ", "Manhattan, NY")
         assert result.direction == "NJ → NYC"
-        assert result.recommended_level in ("upper", "lower")
-        assert result.time_saved is not None
+        # When both levels return the same duration, upper level is preferred
+        assert result.recommended_level == "upper"
+        assert result.time_saved == "same time"
 
     @patch("api_client.requests.get")
     def test_nyc_origin_recommends_nyc_to_nj(self, mock_get, client):
