@@ -995,6 +995,9 @@
         destInput.value = tmp;
         document.getElementById("route-result").innerHTML = "";
         document.getElementById("route-error").style.display = "none";
+        if (originInput.value.trim() && destInput.value.trim()) {
+          findBestRoute();
+        }
       }
 
       async function findBestRoute() {
