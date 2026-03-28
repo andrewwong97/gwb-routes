@@ -222,6 +222,42 @@ class TestInsightsEndpoints:
         assert resp.status_code == 400
 
 
+class TestCronCollect:
+    def test_cron_collect_success(self, test_client):
+        client, _ = test_client
+        with patch("index.api_client") as mock_api:
+            mock_api.get_times_as_model.return_value = Mock(
+                upper_level_nyc="5 mins",
+                lower_level_nyc="6 mins",
+                upper_level_nj="4 mins",
+                lower_level_nj="7 mins",
+            )
+            resp = client.get("/cron/collect")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["status"] == "ok"
+            assert data["recorded"]["upper_nj_to_nyc"] == "5 mins"
+
+    def test_cron_collect_rejects_bad_secret(self, test_client):
+        client, _ = test_client
+        with patch.dict(os.environ, {"CRON_SECRET": "my-secret"}):
+            resp = client.get("/cron/collect", headers={"Authorization": "Bearer wrong"})
+            assert resp.status_code == 401
+
+    def test_cron_collect_allows_correct_secret(self, test_client):
+        client, _ = test_client
+        with patch.dict(os.environ, {"CRON_SECRET": "my-secret"}):
+            with patch("index.api_client") as mock_api:
+                mock_api.get_times_as_model.return_value = Mock(
+                    upper_level_nyc="5 mins",
+                    lower_level_nyc="6 mins",
+                    upper_level_nj="4 mins",
+                    lower_level_nj="7 mins",
+                )
+                resp = client.get("/cron/collect", headers={"Authorization": "Bearer my-secret"})
+                assert resp.status_code == 200
+
+
 class TestDashboard:
     def test_dashboard_root(self, test_client):
         client, _ = test_client

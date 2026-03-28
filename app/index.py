@@ -276,6 +276,43 @@ async def db_health():
     return api_client.db.health_check()
 
 
+# ── Cron endpoint ─────────────────────────────────────────────────────
+
+@app.get("/cron/collect")
+async def cron_collect(request: Request):
+    """Fetch all 4 route durations and record them to the database.
+
+    Called hourly by Vercel Cron. Protected by CRON_SECRET header check.
+    """
+    # Vercel Cron sends an Authorization header with the CRON_SECRET
+    cron_secret = os.getenv("CRON_SECRET")
+    if cron_secret:
+        auth = request.headers.get("authorization")
+        if auth != f"Bearer {cron_secret}":
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+    try:
+        # get_times_as_model calls get_duration for all 4 routes,
+        # which records each duration to the database automatically
+        data = api_client.get_times_as_model()
+        log.info(f"Cron collect complete: upper_nyc={data.upper_level_nyc}, "
+                 f"lower_nyc={data.lower_level_nyc}, "
+                 f"upper_nj={data.upper_level_nj}, "
+                 f"lower_nj={data.lower_level_nj}")
+        return {
+            "status": "ok",
+            "recorded": {
+                "upper_nj_to_nyc": data.upper_level_nyc,
+                "lower_nj_to_nyc": data.lower_level_nyc,
+                "upper_nyc_to_nj": data.upper_level_nj,
+                "lower_nyc_to_nj": data.lower_level_nj,
+            },
+        }
+    except Exception as e:
+        log.error(f"Cron collect failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Collection failed: {e}")
+
+
 # This is important for Vercel
 if __name__ == "__main__":
     import uvicorn
