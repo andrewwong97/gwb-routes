@@ -1,4 +1,3 @@
-import hashlib
 import json
 import os
 import logging
@@ -132,10 +131,16 @@ class RoutesCache:
             return {"error": str(e), "redis_connected": False}
     
     @staticmethod
-    def _recommendation_key(origin: str, destination: str) -> str:
-        """Generate a safe, fixed-length cache key for a recommendation."""
-        raw = f"{origin}|{destination}"
-        return f"recommend:{hashlib.sha256(raw.encode()).hexdigest()}"
+    def _sanitize_key_part(value: str, max_len: int = 200) -> str:
+        """Sanitize a string for use in a Redis key: replace delimiters and truncate."""
+        return value.replace(":", "_").replace("|", "_").strip()[:max_len]
+
+    @classmethod
+    def _recommendation_key(cls, origin: str, destination: str) -> str:
+        """Generate a readable, safely-delimited cache key for a recommendation."""
+        safe_origin = cls._sanitize_key_part(origin)
+        safe_dest = cls._sanitize_key_part(destination)
+        return f"recommend:{safe_origin}|{safe_dest}"
 
     def get_recommendation(self, origin: str, destination: str) -> Optional[dict]:
         """Get a cached route recommendation by origin/destination."""
