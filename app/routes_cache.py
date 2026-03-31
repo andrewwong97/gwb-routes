@@ -130,12 +130,24 @@ class RoutesCache:
             log.error(f"Error getting cache info: {e}")
             return {"error": str(e), "redis_connected": False}
     
+    @staticmethod
+    def _sanitize_key_part(value: str, max_len: int = 200) -> str:
+        """Sanitize a string for use in a Redis key: replace delimiters and truncate."""
+        return value.replace(":", "_").replace("|", "_").strip()[:max_len]
+
+    @classmethod
+    def _recommendation_key(cls, origin: str, destination: str) -> str:
+        """Generate a readable, safely-delimited cache key for a recommendation."""
+        safe_origin = cls._sanitize_key_part(origin)
+        safe_dest = cls._sanitize_key_part(destination)
+        return f"recommend:{safe_origin}|{safe_dest}"
+
     def get_recommendation(self, origin: str, destination: str) -> Optional[dict]:
         """Get a cached route recommendation by origin/destination."""
         if not self.redis:
             return None
 
-        cache_key = f"recommend:{origin}:{destination}"
+        cache_key = self._recommendation_key(origin, destination)
         try:
             cached = self.redis.get(cache_key)
             if cached:
@@ -154,7 +166,7 @@ class RoutesCache:
         if not self.redis:
             return False
 
-        cache_key = f"recommend:{origin}:{destination}"
+        cache_key = self._recommendation_key(origin, destination)
         try:
             self.redis.setex(cache_key, self.recommendation_ttl, json.dumps(data))
             log.info(f"Cached recommendation for {self.cache_ttl}s: {origin} → {destination}")

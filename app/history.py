@@ -293,15 +293,15 @@ class HistoryStore:
             """
             SELECT
                 CASE
-                    WHEN dr.captured_at >= NOW() - INTERVAL '%s days' THEN 'recent'
-                    WHEN dr.captured_at >= NOW() - INTERVAL '%s days' THEN 'baseline'
+                    WHEN dr.captured_at >= NOW() - INTERVAL '1 day' * %s THEN 'recent'
+                    WHEN dr.captured_at >= NOW() - INTERVAL '1 day' * %s THEN 'baseline'
                 END AS period,
                 AVG(dr.duration_seconds)::INTEGER AS avg_seconds,
                 COUNT(*)::INTEGER AS sample_count
             FROM duration_records dr
             JOIN routes r ON r.id = dr.route_id
             WHERE r.name = %s
-              AND dr.captured_at >= NOW() - INTERVAL '%s days'
+              AND dr.captured_at >= NOW() - INTERVAL '1 day' * %s
             GROUP BY period
             """,
             (recent_days, baseline_days, route_name, baseline_days),
@@ -328,6 +328,12 @@ class HistoryStore:
         Returns: [{route_name, avg_seconds, median_seconds, sample_count}, ...]
         """
         if not self.db.is_available():
+            return []
+
+        # Validate direction to prevent LIKE pattern injection
+        allowed_directions = ("nj_to_nyc", "nyc_to_nj")
+        if direction not in allowed_directions:
+            log.warning(f"Invalid direction for route comparison: {direction}")
             return []
 
         rows = self.db.fetch_all(
