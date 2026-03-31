@@ -118,6 +118,21 @@ async def dashboard(response: Response):
             html_content = f.read()
         # Replace localhost:8000 with relative URLs for production
         html_content = html_content.replace('"http://localhost:8000"', '""')
+        # Inject Microsoft Clarity tracking if configured
+        clarity_id = os.environ.get("CLARITY_PROJECT_ID", "")
+        if clarity_id:
+            clarity_script = (
+                '<script type="text/javascript">'
+                "(function(c,l,a,r,i,t,y){"
+                "c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};"
+                "t=l.createElement(r);t.async=1;t.src=\"https://www.clarity.ms/tag/\"+i;"
+                "y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);"
+                f"}})(window, document, \"clarity\", \"script\", \"{clarity_id}\");"
+                "</script>"
+            )
+            html_content = html_content.replace("<!-- __CLARITY_SCRIPT__ -->", clarity_script)
+        else:
+            html_content = html_content.replace("<!-- __CLARITY_SCRIPT__ -->", "")
         # Cache for 10 minutes - longer than data cache but not too long for UI updates
         response.headers["Cache-Control"] = "public, max-age=600, s-maxage=600"
         metrics.count("dashboard.request", 1)
