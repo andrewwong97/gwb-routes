@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import logging
@@ -130,12 +131,18 @@ class RoutesCache:
             log.error(f"Error getting cache info: {e}")
             return {"error": str(e), "redis_connected": False}
     
+    @staticmethod
+    def _recommendation_key(origin: str, destination: str) -> str:
+        """Generate a safe, fixed-length cache key for a recommendation."""
+        raw = f"{origin}|{destination}"
+        return f"recommend:{hashlib.sha256(raw.encode()).hexdigest()}"
+
     def get_recommendation(self, origin: str, destination: str) -> Optional[dict]:
         """Get a cached route recommendation by origin/destination."""
         if not self.redis:
             return None
 
-        cache_key = f"recommend:{origin}:{destination}"
+        cache_key = self._recommendation_key(origin, destination)
         try:
             cached = self.redis.get(cache_key)
             if cached:
@@ -154,7 +161,7 @@ class RoutesCache:
         if not self.redis:
             return False
 
-        cache_key = f"recommend:{origin}:{destination}"
+        cache_key = self._recommendation_key(origin, destination)
         try:
             self.redis.setex(cache_key, self.recommendation_ttl, json.dumps(data))
             log.info(f"Cached recommendation for {self.cache_ttl}s: {origin} → {destination}")
