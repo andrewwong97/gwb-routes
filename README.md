@@ -27,6 +27,20 @@ Set up a python virtualenv and activate it:
 2. `source venv/bin/activate`
 3. `pip install -r requirements.txt`
 
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `GOOGLE_MAPS_API_KEY` | **Yes** | Google Maps Directions & Places API key |
+| `DATABASE_URL` | No | PostgreSQL connection string (NeonDB). Enables analytics and historical tracking. |
+| `REDIS_URL` | No | Redis connection string (Upstash). Enables response caching (180s TTL). |
+| `SENTRY_DSN` | No | Sentry DSN for error tracking and metrics. |
+| `CLARITY_PROJECT_ID` | No | Microsoft Clarity project ID for session analytics. |
+
+All optional services degrade gracefully — the app runs fine with just `GOOGLE_MAPS_API_KEY`.
+
+> **Note:** The Vercel deployment also has `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `environment` configured. These are used by the Vercel/Sentry integration for source maps and are not referenced by application code.
+
 **Commands**:
 
 1. To run the fastapi server locally: `GOOGLE_MAPS_API_KEY=<the key> python app/index.py`
