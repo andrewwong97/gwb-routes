@@ -470,6 +470,135 @@
         color: #4ade80;
       }
 
+      .breakdown-toggle {
+        margin-top: 14px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #7b9cff;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.2s, border-color 0.2s;
+      }
+
+      .breakdown-toggle:hover {
+        background: rgba(56, 97, 251, 0.1);
+        border-color: rgba(56, 97, 251, 0.4);
+      }
+
+      .breakdown-toggle .chev {
+        display: inline-block;
+        margin-left: 4px;
+        transition: transform 0.2s ease;
+      }
+
+      .breakdown-toggle.open .chev {
+        transform: rotate(180deg);
+      }
+
+      .route-breakdown {
+        display: none;
+        margin-top: 16px;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .route-breakdown.open {
+        display: grid;
+      }
+
+      .breakdown-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: left;
+        position: relative;
+      }
+
+      .breakdown-card.recommended {
+        border-color: rgba(74, 222, 128, 0.35);
+        background: rgba(74, 222, 128, 0.04);
+      }
+
+      .breakdown-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 10px;
+      }
+
+      .breakdown-level {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #e1e4e8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .breakdown-total {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #ffffff;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .breakdown-card.recommended .breakdown-total {
+        color: #4ade80;
+      }
+
+      .breakdown-best-badge {
+        display: inline-block;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #4ade80;
+        background: rgba(74, 222, 128, 0.12);
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+
+      .breakdown-legs {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .breakdown-leg {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        padding: 6px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+      }
+
+      .breakdown-leg:last-child {
+        border-bottom: none;
+      }
+
+      .breakdown-leg-label {
+        color: #7d8590;
+      }
+
+      .breakdown-leg-value {
+        color: #e1e4e8;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (max-width: 540px) {
+        .route-breakdown.open {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .route-error {
         margin-top: 16px;
         background: rgba(248, 81, 73, 0.1);
@@ -1008,6 +1137,41 @@
         }
       }
 
+      function renderBreakdownCard(levelLabel, total, toBridge, bridge, fromBridge, isRecommended) {
+        return `
+          <div class="breakdown-card ${isRecommended ? "recommended" : ""}">
+            <div class="breakdown-card-header">
+              <div class="breakdown-level">${levelLabel}${isRecommended ? '<span class="breakdown-best-badge">Best</span>' : ""}</div>
+              <div class="breakdown-total">${total || "N/A"}</div>
+            </div>
+            <div class="breakdown-legs">
+              <div class="breakdown-leg">
+                <span class="breakdown-leg-label">Origin → on-ramp</span>
+                <span class="breakdown-leg-value">${toBridge || "N/A"}</span>
+              </div>
+              <div class="breakdown-leg">
+                <span class="breakdown-leg-label">Bridge crossing</span>
+                <span class="breakdown-leg-value">${bridge || "N/A"}</span>
+              </div>
+              <div class="breakdown-leg">
+                <span class="breakdown-leg-label">Off-ramp → destination</span>
+                <span class="breakdown-leg-value">${fromBridge || "N/A"}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function toggleBreakdown() {
+        const toggle = document.getElementById("breakdown-toggle");
+        const panel = document.getElementById("route-breakdown");
+        if (!toggle || !panel) return;
+        const isOpen = panel.classList.toggle("open");
+        toggle.classList.toggle("open", isOpen);
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        toggle.innerHTML = `${isOpen ? "Hide" : "Show"} full route breakdown <span class="chev">▾</span>`;
+      }
+
       async function findBestRoute() {
         const origin = document.getElementById("origin-input").value.trim();
         const destination = document
@@ -1063,6 +1227,13 @@
               <div class="rec-label">Estimated total trip</div>
               <div class="rec-savings">${savingsText}</div>
               <div class="rec-saved">\u2713 Addresses saved${isFirstSave ? " for next time" : ""}</div>
+              <button class="breakdown-toggle" id="breakdown-toggle" onclick="toggleBreakdown()" aria-expanded="false">
+                Show full route breakdown <span class="chev">\u25be</span>
+              </button>
+              <div class="route-breakdown" id="route-breakdown">
+                ${renderBreakdownCard("Upper Level", data.upper_total, data.upper_to_bridge, data.upper_bridge, data.upper_from_bridge, isUpper)}
+                ${renderBreakdownCard("Lower Level", data.lower_total, data.lower_to_bridge, data.lower_bridge, data.lower_from_bridge, !isUpper)}
+              </div>
             </div>
           `;
         } catch (err) {
