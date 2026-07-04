@@ -269,3 +269,11 @@ class TestDashboard:
         client, _ = test_client
         resp = client.get("/dashboard")
         assert resp.status_code in (200, 404)
+
+    def test_dashboard_includes_vercel_web_analytics(self, test_client):
+        client, _ = test_client
+        resp = client.get("/dashboard")
+
+        assert resp.status_code == 200
+        assert 'src="https://cdn.vercel-insights.com/v1/script.js"' in resp.text
+        assert '<script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>' in resp.text
